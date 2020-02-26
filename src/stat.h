@@ -22,7 +22,8 @@ enum {
     LOAD_SECCOMP_FAILED,    /* load seccomp rules failed */
     EXECVE_FAILED,          /* run execve() failed */
     SPJ_ERROR,              /* run Special Judge failed */
-    ROOT_REQUIRED           /* judger needs root privilege */
+    ROOT_REQUIRED,          /* judger needs root privilege */
+    NOBODY_REQUIRED         /* user program needs run in NOBODY */
 };
 
 enum {

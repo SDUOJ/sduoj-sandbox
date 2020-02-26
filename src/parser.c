@@ -43,7 +43,7 @@ void Initialize(int argc, char **argv)
     if (nerrors > 0)
     {
         UnexceptedArg();
-        Halt(1);
+        Halt(INVALID_CONFIG);
     }
 
     signal(SIGINT, Halt);
