@@ -21,7 +21,4 @@ void PrintVersion();
 /* Initialize config from args */
 void InitConfig(struct config *_config);
 
-/* Initialize result to zero */
-void InitResult(struct result *_result);
-
 #endif //JUDGE_UTIL_H_

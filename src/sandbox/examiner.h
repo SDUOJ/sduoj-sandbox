@@ -1,0 +1,6 @@
+#ifndef JUDGE_EXAMINER_H_
+#define JUDGE_EXAMINER_H_
+
+
+
+#endif //JUDGE_EXAMINER_H_

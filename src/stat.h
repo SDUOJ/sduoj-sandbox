@@ -39,6 +39,8 @@ struct config {
     rlim_t max_real_time;
     rlim_t max_memory;
     rlim_t max_stack;
+    rlim_t max_process_number;
+    rlim_t max_output_size;
 
     char *exe_path;
     char *input_path;

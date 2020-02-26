@@ -10,8 +10,6 @@ int main(int argc, char **argv)
     struct config _config;
 
     Initialize(argc, argv);
-
-    InitResult(&_result);
     InitConfig(&_config);
 
     printf("{\"cpu_time\":%d,\"real_time\":%d,\"memory\":%d,\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",

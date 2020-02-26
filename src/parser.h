@@ -14,6 +14,8 @@ struct arg_int *max_cpu_time, /* maximum cpu time */
     *max_real_time,           /* maximum real time, include blocked time */
     *max_memory,              /* maximum virtual memory */
     *max_stack,               /* maximum stack size, default 16384K */
+    *max_process_number,
+    *max_output_size,
     *uid, *gid;               /* run judger in such uid and gid */
 
 struct arg_str *exe_path, /* executable file that judger will run */

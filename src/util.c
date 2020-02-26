@@ -55,6 +55,8 @@ void InitConfig(struct config *_config)
     _config->max_real_time = max_real_time->count > 0 ? (rlim_t)max_real_time->ival : RLIM_INFINITY;
     _config->max_memory = max_memory->count > 0 ? (rlim_t)max_memory->ival : RLIM_INFINITY;
     _config->max_stack = max_stack->count > 0 ? (rlim_t)max_stack->ival : 16384;
+    _config->max_process_number = max_process_number->count > 0 ? (rlim_t)max_process_number->ival : RLIM_INFINITY;
+    _config->max_output_size = max_output_size->count > 0 ? (rlim_t)max_output_size->ival : RLIM_INFINITY;
 
     _config->exe_path = (char *)exe_path->sval[0];
     _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
@@ -74,15 +76,4 @@ void InitConfig(struct config *_config)
     GetNobody(&nobody_uid, &nobody_gid);
     _config->uid = uid->count > 0 ? (uid_t)uid->ival : nobody_uid;
     _config->gid = gid->count > 0 ? (gid_t)gid->ival : nobody_gid;
-}
-
-void InitResult(struct result *_result)
-{
-    _result->cpu_time = 0;
-    _result->real_time = 0;
-    _result->memory = 0;
-    _result->signal = 0;
-    _result->exit_code = 0;
-    _result->error = 0;
-    _result->result = 0;
 }
