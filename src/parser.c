@@ -21,7 +21,7 @@ void Initialize(int argc, char **argv)
     arg_table[11] = (exe_envs = arg_strn(NULL, "exe_envs", STR_PLACEHOLDER, 0, 255, "Environments for executable file."));
     arg_table[12] = (seccomp_rules = arg_strn(NULL, "seccomp_rules", STR_PLACEHOLDER, 0, 1, "Seccomp rules."));
     arg_table[13] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
-    arg_table[14] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
+    arg_table[14] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)."));
     arg_table[15] = (end = arg_end(MAX_ERROR));
 
     int nerrors = arg_parse(argc, argv, arg_table);
@@ -41,7 +41,7 @@ void Initialize(int argc, char **argv)
     if (nerrors > 0)
     {
         UnexceptedArg();
-        Halt(1);
+        Halt(INVALID_CONFIG);
     }
 
     signal(SIGINT, Halt);

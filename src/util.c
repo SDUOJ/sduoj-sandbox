@@ -12,9 +12,7 @@ void GetNobody(int *uid, int *gid)
     nobody = getpwnam("nobody");
     if (!nobody)
     {
-        fprintf(stdin, "[WARN]: can not find `nobody`, default uid will be 65534.\n");
-        *uid = 65534;
-        *gid = 65534;
+        Halt(NOBODY_REQUIRED);
     }
     else
     {
