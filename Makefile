@@ -4,8 +4,11 @@ obj_dir = $(dest_dir)/objects
 bin_dir = $(dest_dir)/bin
 	
 CC = gcc
-CFLAGS = -g -Wall
-CFILES = main.c util.c parser.c argtable3.c c_cpp_file_io.c c_cpp.c general.c
+LD = gcc
+CFLAGS = -g -Wall -O3 -std=c99 -pie -fPIC
+LDFLAGS = 
+LIBS = -lpthread -lseccomp
+CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c
 ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 
 program = $(bin_dir)/judger
@@ -13,20 +16,20 @@ $(program): $(ofiles)
 
 $(bin_dir)/%:
 	@echo ">>> Linking" $@ "<<<"
-	$(CC) $^ -o $@
+	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
 	ln -sf $@ $(notdir $@)
 
 $(obj_dir)/%.o: $(src_dir)/%.c
 	@echo ">>> Compiling" $< "<<<"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(obj_dir)/%.o: $(src_dir)/argtable/%.c
 	@echo ">>> Compiling" $< "<<<"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(obj_dir)/%.o: $(src_dir)/rules/%.c
 	@echo ">>> Compiling" $< "<<<"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 .PHONY: clean
 clean:

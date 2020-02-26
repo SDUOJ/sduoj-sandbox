@@ -1,27 +1,28 @@
 #ifndef JUDGE_STAT_H_
-#define JEDGE_STAT_H_
+#define JUDGE_STAT_H_
 
 #include <sys/types.h>
+#include <sys/resource.h>
 
-#define VERSION 0x000001
 #define PROJECT_NAME "judger"
+#define VERSION 0x000001
 
 #define MAX_ARG 256
 #define MAX_ENV 256
 
 enum {
-    SUCCESS,
-    INVALID_CONFIG,
-    FORK_ERROR,
-    PTHREAD_ERROR,
-    WAIT_ERROR,
-    DUP2_ERROR,
-    SETRLIMIT_ERROR,
-    SETUID_ERROR,
-    SECCOPM_LOAD_ERROR,
-    EXECVE_ERROR,
-    SPJ_ERROR,
-    ROOT_REQUIRED
+    SUCCESS,                /* everything is ok */
+    INVALID_CONFIG,         /* invalied config */
+    FORK_FAILED,            /* run fork() failed */
+    PTHREAD_FAILED,         /* run child thread failed */
+    WAIT_FAILED,            /* run wait4() failed */
+    DUP2_FAILED,            /* run dup2() failed */
+    SETRLIMIT_FAILED,       /* run setrlimit() failed */
+    SETUID_FAILED,          /* run setuid() failed */
+    LOAD_SECCOMP_FAILED,    /* load seccomp rules failed */
+    EXECVE_FAILED,          /* run execve() failed */
+    SPJ_ERROR,              /* run Special Judge failed */
+    ROOT_REQUIRED           /* judger needs root privilege */
 };
 
 enum {
@@ -34,18 +35,18 @@ enum {
 };
 
 struct config {
-    int max_cpu_time;
-    int max_real_time;
-    int max_memory;
-    int max_stack;
+    rlim_t max_cpu_time;
+    rlim_t max_real_time;
+    rlim_t max_memory;
+    rlim_t max_stack;
 
     char *exe_path;
     char *input_path;
     char *output_path;
     char *log_path;
 
-    char *exe_args[MAX_ARG];
-    char *exe_envs[MAX_ENV];
+    char *exe_args[MAX_ARG + 1];
+    char *exe_envs[MAX_ENV + 1];
     
     char *seccomp_rules;
 
@@ -56,9 +57,9 @@ struct config {
 struct result {
     int cpu_time;
     int real_time;
-    int memory_time;
+    int memory;
     int signal;
-    int eixt_code;
+    int exit_code;
     int error;
     int result;
 };

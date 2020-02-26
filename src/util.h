@@ -1,8 +1,10 @@
 #ifndef JUDGE_UTIL_H_
 #define JUDGE_UTIL_H_
 
+#include "stat.h"
+
 /* get uid and pid of role `nobody` */
-void GetNobody(int* uid, int* gid);
+void GetNobody(int *uid, int *gid);
 
 /* release arg table and exit */
 void Halt(int exit_code);
@@ -15,5 +17,11 @@ void PrintUsage();
 
 /* print current judger version */
 void PrintVersion();
+
+/* Initialize config from args */
+void InitConfig(struct config *_config);
+
+/* Initialize result to zero */
+void InitResult(struct result *_result);
 
 #endif //JUDGE_UTIL_H_

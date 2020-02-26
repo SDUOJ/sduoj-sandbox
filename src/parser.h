@@ -10,19 +10,19 @@
 
 struct arg_lit *help, *version;
 
-struct arg_int *max_cpu_time,   /* maximum cpu time */
-               *max_real_time,  /* maximum real time, include blocked time */
-               *max_memory,     /* maximum virtual memory */
-               *max_stack,      /* maximum stack size, default 16384K */
-               *uid, *gid;      /* run judger in such uid and gid */
+struct arg_int *max_cpu_time, /* maximum cpu time */
+    *max_real_time,           /* maximum real time, include blocked time */
+    *max_memory,              /* maximum virtual memory */
+    *max_stack,               /* maximum stack size, default 16384K */
+    *uid, *gid;               /* run judger in such uid and gid */
 
-struct arg_str *exe_path,       /* executable file that judger will run */
-               *input_path,     /* executable file will read in */
-               *output_path,    /* executable file will print out */
-               *log_path,       /* judger will print log */
-               *exe_args,       /* args and envs for executable file */
-               *exe_envs,
-               *seccomp_rules;  /* additional seccomp_rules */
+struct arg_str *exe_path, /* executable file that judger will run */
+    *input_path,          /* executable file will read in */
+    *output_path,         /* executable file will print out */
+    *log_path,            /* judger will print log */
+    *exe_args,            /* args and envs for executable file */
+    *exe_envs,
+    *seccomp_rules; /* additional seccomp_rules */
 
 struct arg_end *end;
 
