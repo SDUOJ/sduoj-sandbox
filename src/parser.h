@@ -10,10 +10,10 @@
 
 struct arg_lit *help, *version;
 
-struct arg_int *max_cpu_time, /* maximum cpu time */
-    *max_real_time,           /* maximum real time, include blocked time */
-    *max_memory,              /* maximum virtual memory */
-    *max_stack,               /* maximum stack size, default 16384K */
+struct arg_int *max_cpu_time, /* maximum cpu time(ms) */
+    *max_real_time,           /* maximum real time, include blocked time(ms) */
+    *max_memory,              /* maximum virtual memory(byte) */
+    *max_stack,               /* maximum stack size(byte), default 16384K */
     *max_process_number,
     *max_output_size,
     *uid, *gid;               /* run judger in such uid and gid */
@@ -24,7 +24,7 @@ struct arg_str *exe_path, /* executable file that judger will run */
     *log_path,            /* judger will print log */
     *exe_args,            /* args and envs for executable file */
     *exe_envs,
-    *seccomp_rules; /* additional seccomp_rules */
+    *seccomp_rules;       /* additional seccomp_rules */
 
 struct arg_end *end;
 
