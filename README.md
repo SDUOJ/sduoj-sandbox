@@ -1,18 +1,18 @@
 # SDUOJ-Judger
 
-This is the sandbox of judger for SDUOJ, to provide a secure environment for running user's program that submitted from web.
+This is the sandbox of judger for SDUOJ, which provides a secure environment for running user's code that is submitted from web.
 
 The sandbox can run on `Linux` with system call `setrlimit` and `seccomp` to limit the resource and some dangerous system calls.
 
 # Install
 
-For this sandbox use `seccomp`, your system needs this environment. You can install seccomp with command followed.
+For this sandbox use `seccomp`, you need to add it to your system. And you can install seccomp with command followed.
 
 ```
 sudo apt-get install libseccomp-dev libseccomp2 seccomp
 ```
 
-and then, you can run
+Then, you can run
 
 ```
 make
