@@ -28,7 +28,7 @@ You can run the sandbox with such command
 
 ```
 # root privilege is needed
-$ sudo ./judger \
+$ sudo ./sandbox \
     --exe_path="/usr/bin/python3" \     # executable file path
     --exe_args="test/test_py.py"  \     # args of executable file
     --input_path="test/input.txt" \     # where to get input
