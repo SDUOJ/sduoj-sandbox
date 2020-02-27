@@ -169,7 +169,7 @@ void ChildProcess(FILE *log_fp, struct config *_config) {
         else
         {
             // rule does not exist
-            CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
+            // CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
         }
     }
 
