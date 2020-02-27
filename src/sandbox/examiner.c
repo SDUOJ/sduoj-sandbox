@@ -49,7 +49,6 @@ void CheckArgs(FILE *log_fp, struct config *_config, struct result *_result)
 
 void *KillTimeout(void *timeout_info)
 {
-    // create a new thread to kill the timeout process
     pid_t pid = ((struct timeout_info *)timeout_info)->pid;
     int timeout = ((struct timeout_info *)timeout_info)->timeout;
     
