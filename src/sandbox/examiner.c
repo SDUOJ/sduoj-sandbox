@@ -166,10 +166,10 @@ void ChildProcess(FILE *log_fp, struct config *_config) {
         {
             CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
         }
-        else
+        else if(strcmp("c_cpp", _config->seccomp_rules) != 0 && strcmp("c_cpp_file_io", _config->seccomp_rules) != 0 && strcmp("general", _config->seccomp_rules) != 0)
         {
             // rule does not exist
-            // CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
+            CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
         }
     }
 
