@@ -1,5 +1,5 @@
-#ifndef JUDGE_UTIL_H_
-#define JUDGE_UTIL_H_
+#ifndef SANDBOX_UTIL_H_
+#define SANDBOX_UTIL_H_
 
 #include "public.h"
 
@@ -12,9 +12,9 @@ void Halt(int exit_code);
 /* receive unexcepted arg and hit help */
 void UnexceptedArg();
 
-/* print how to use judger */
+/* print how to use sandbox */
 void PrintUsage();
 
-/* print current judger version */
+/* print current sandbox version */
 void PrintVersion();
-#endif //JUDGE_UTIL_H_
+#endif //SANDBOX_UTIL_H_

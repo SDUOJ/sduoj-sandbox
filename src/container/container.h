@@ -1,5 +1,5 @@
-#ifndef JUDGE_EXAMINER_H_
-#define JUDGE_EXAMINER_H_
+#ifndef SANDBOX_EXAMINER_H_
+#define SANDBOX_EXAMINER_H_
 
 #include "../public.h"
 
@@ -47,4 +47,4 @@ struct timeout_info
 };
 
 void Examine(struct config *, struct result *);
-#endif //JUDGE_EXAMINER_H_
+#endif //SANDBOX_EXAMINER_H_

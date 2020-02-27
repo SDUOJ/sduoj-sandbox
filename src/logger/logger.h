@@ -1,5 +1,5 @@
-#ifndef JUDGE_LOGGER_H_
-#define JUDGE_LOGGER_H_
+#ifndef SANDBOX_LOGGER_H_
+#define SANDBOX_LOGGER_H_
 
 #define LOG_LEVEL_FATAL 0
 #define LOG_LEVEL_WARNING 1
@@ -17,10 +17,10 @@ void LogWrite(int level, const char *source_filename, const int line_number, con
 #define LOG_WARNING(log_fp, x...) LogWrite(LOG_LEVEL_WARNING, __FILE__, __LINE__, log_fp, ##x)
 #define LOG_FATAL(log_fp, x...) LogWrite(LOG_LEVEL_FATAL, __FILE__, __LINE__, log_fp, ##x)
 
-#ifdef JUDGER_DEBUG
+#ifdef SANDBOX_DEBUG
 #define LOG_DEBUG(log_fp, x...) LogWrite(LOG_LEVEL_DEBUG, __FILE__, __LINE__, log_fp, ##x)
 #else
 #define LOG_DEBUG(log_fp, x...)
 #endif
 
-#endif //JUDGE_LOGGER_H_
+#endif //SANDBOX_LOGGER_H_
