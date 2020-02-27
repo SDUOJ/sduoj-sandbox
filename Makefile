@@ -8,10 +8,10 @@ LD = gcc
 CFLAGS = -g -Wall -Werror -O3 -std=c99 -pie -fPIC
 LDFLAGS = 
 LIBS = -lpthread -lseccomp
-CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c examiner.c logger.c
+CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c container.c logger.c
 ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 
-program = $(bin_dir)/judger
+program = $(bin_dir)/sandbox
 $(program): $(ofiles)
 
 $(bin_dir)/%:
