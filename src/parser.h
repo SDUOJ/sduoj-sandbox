@@ -6,7 +6,7 @@
 #define INT_PLACEHOLDER "<n>"
 #define STR_PLACEHOLDER "<str>"
 
-#define NUM_ALLOWED_ARG 15
+#define NUM_ALLOWED_ARG 17
 
 struct arg_lit *help, *version;
 
