@@ -8,7 +8,7 @@ LD = gcc
 CFLAGS = -g -Wall -O3 -std=c99 -pie -fPIC
 LDFLAGS = 
 LIBS = -lpthread -lseccomp
-CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c examiner.c tool.c
+CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c examiner.c log.c
 ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 
 program = $(bin_dir)/judger

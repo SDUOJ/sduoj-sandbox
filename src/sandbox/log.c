@@ -4,38 +4,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <signal.h>
-#include <pthread.h>
 #include <sys/file.h>
 
-#include "tool.h"
-
-/* ------------- Tool of killing process */
-
-int KillProcess(pid_t pid)
-{
-    return kill(pid, SIGKILL);
-}
-
-void *KillTimeout(void *timeout_info)
-{
-    // create a new thread to kill the timeout process
-    pid_t pid = ((struct timeout_info *)timeout_info)->pid;
-    int timeout = ((struct timeout_info *)timeout_info)->timeout;
-    
-    // pthread_detach(pthread_self()) set the thread's status to be unjoinable to release resources; if success, return 0
-    if (pthread_detach(pthread_self()) != 0 || sleep((unsigned int)((timeout + 1000) / 1000)) != 0)
-    {
-        KillProcess(pid);
-        return NULL;
-    }
-
-    // check in the end
-    if (KillProcess(pid) != 0) return NULL;
-    return NULL;
-}
-
-/* ------------- Tool of maintaining log */
+#include "log.h"
 
 FILE *LogOpen(const char *filename)
 {
@@ -44,12 +15,10 @@ FILE *LogOpen(const char *filename)
     return log_fp;
 }
 
-
 void LogClose(FILE *log_fp)
 {
     if (log_fp != NULL) fclose(log_fp);
 }
-
 
 void LogWrite(int level, const char *source_filename, const int line, const FILE *log_fp, const char *fmt, ...)
 {

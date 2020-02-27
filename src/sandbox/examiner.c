@@ -19,12 +19,12 @@
 #include <sys/time.h>
 #include <sys/mount.h>
 
-#include "tool.h"
+#include "log.h"
 #include "examiner.h"
 #include "../rules/seccomp_rules.h"
 
 /* Initialize result to zero */
-void InitResult(FILE *log_fp, struct result *_result)
+void InitResult(struct result *_result)
 {
     _result->cpu_time = 0;
     _result->real_time = 0;
@@ -45,6 +45,24 @@ void CheckArgs(FILE *log_fp, struct config *_config, struct result *_result)
     if (_config->max_cpu_time < 1 || _config->max_real_time < 1 || _config->max_stack < 1 || 
         _config->max_memory < 1 || _config->max_process_number < 1 || _config->max_output_size < 1)
     	ERROR_EXIT(INVALID_CONFIG);
+}
+
+void *KillTimeout(void *timeout_info)
+{
+    // create a new thread to kill the timeout process
+    pid_t pid = ((struct timeout_info *)timeout_info)->pid;
+    int timeout = ((struct timeout_info *)timeout_info)->timeout;
+    
+    // pthread_detach(pthread_self()) set the thread's status to be unjoinable to release resources; if success, return 0
+    if (pthread_detach(pthread_self()) != 0 || sleep((unsigned int)((timeout + 1000) / 1000)) != 0)
+    {
+        KillProcess(pid);
+        return NULL;
+    }
+
+    // check in the end
+    if (KillProcess(pid) != 0) return NULL;
+    return NULL;
 }
 
 void ChildProcess(FILE *log_fp, struct config *_config) {
@@ -119,28 +137,6 @@ void ChildProcess(FILE *log_fp, struct config *_config) {
         if (dup2(fileno(output_file), fileno(stdout)) == -1)
             CHILD_ERROR_EXIT(DUP2_FAILED);
     }
-
-    // if (_config->error_path != NULL)
-    // {
-    //     // if outfile and error_file is the same path, we use the same file pointer
-    //     if (_config->output_path != NULL && strcmp(_config->output_path, _config->error_path) == 0)
-    //         error_file = output_file;
-    //     else 
-    //     {
-    //         error_file = fopen(_config->error_path, "w");
-    //         if (error_file == NULL)
-    //         {
-    //             // todo log
-    //             CHILD_ERROR_EXIT(DUP2_FAILED);
-    //         }
-    //     }
-    //     // redirect stderr -> file
-    //     if (dup2(fileno(error_file), fileno(stderr)) == -1)
-    //     {
-    //         // todo log
-    //         CHILD_ERROR_EXIT(DUP2_FAILED);
-    //     }
-    // }
 
     // set gid
     gid_t group_list[] = {_config->gid};
@@ -267,7 +263,7 @@ void Examine(struct config *_config, struct result *_result)
 	FILE *log_fp = LogOpen(_config->log_path);
 
 	CheckArgs(log_fp, _config, _result);
-	InitResult(log_fp, _result);
+	InitResult(_result);
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL);

@@ -9,6 +9,8 @@
 
 #define LOG_ERROR(error_code) LOG_FATAL(log_fp, "Error: "#error_code);
 
+#define KillProcess(pid) kill(pid, SIGKILL)
+
 #define ERROR_EXIT(error_code)\
     {\
         LOG_ERROR(error_code);  \
@@ -26,6 +28,11 @@
         raise(SIGUSR1);  \
         exit(EXIT_FAILURE); \
     }
+
+struct timeout_info {
+    pid_t pid;
+    int timeout;
+};
 
 void Examine(struct config *, struct result *);
 
