@@ -17,11 +17,11 @@ int KillProcess(pid_t pid)
     return kill(pid, SIGKILL);
 }
 
-void *KillTimeout(void *time_limit_exceeded)
+void *KillTimeout(void *timeout_info)
 {
     // create a new thread to kill the timeout process
-    pid_t pid = ((struct time_limit_exceeded *)time_limit_exceeded)->pid;
-    int timeout = ((struct time_limit_exceeded *)time_limit_exceeded)->timeout;
+    pid_t pid = ((struct timeout_info *)timeout_info)->pid;
+    int timeout = ((struct timeout_info *)timeout_info)->timeout;
     
     // pthread_detach(pthread_self()) set the thread's status to be unjoinable to release resources; if success, return 0
     if (pthread_detach(pthread_self()) != 0 || sleep((unsigned int)((timeout + 1000) / 1000)) != 0)
@@ -63,7 +63,8 @@ void LogWrite(int level, const char *source_filename, const int line, const FILE
     static char log_buffer[LOG_BUFFER_SIZE];
     static char datetime[100];
     static char line_str[20];
-    static time_t now = time(NULL);
+    static time_t now;
+    now = time(NULL);
 
     strftime(datetime, 99, "%Y-%m-%d %H:%M:%S", localtime(&now));
     snprintf(line_str, 19, "%d", line);

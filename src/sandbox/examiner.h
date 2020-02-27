@@ -1,6 +1,18 @@
 #ifndef JUDGE_EXAMINER_H_
 #define JUDGE_EXAMINER_H_
 
+#define LIMITED(agrs) agrs != RLIM_INFINITY
 
+#define CLOSE_FILE(fp) {if (fp != NULL) fclose(fp);}
+
+#define CHILD_ERROR_EXIT(error_code)\
+    {\
+        LOG_FATAL(log_fp, "Error: System errno: %s; Internal errno: "#error_code, strerror(errno)); \
+        CLOSE_FILE(input_file); \
+        if (output_file == error_file) { CLOSE_FILE(output_file);} \
+        else { CLOSE_FILE(output_file); CLOSE_FILE(error_file);}  \
+        raise(SIGUSR1);  \
+        exit(EXIT_FAILURE); \
+    }
 
 #endif //JUDGE_EXAMINER_H_

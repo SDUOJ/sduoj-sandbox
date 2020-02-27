@@ -7,14 +7,14 @@
 #define LOG_LEVEL_WARNING 1
 #define LOG_BUFFER_SIZE 8192
 
-struct time_limit_exceeded {
+struct timeout_info {
     pid_t pid;
     int timeout;
 };
 
 int KillProcess(pid_t pid);
 
-void *KillTimeout(void *time_limit_exceeded);
+void *KillTimeout(void *timeout_info);
 
 FILE *LogOpen(const char *);
 
