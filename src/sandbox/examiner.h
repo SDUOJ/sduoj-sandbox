@@ -1,6 +1,8 @@
 #ifndef JUDGE_EXAMINER_H_
 #define JUDGE_EXAMINER_H_
 
+#include "../stat.h"
+
 #define LIMITED(agrs) agrs != RLIM_INFINITY
 
 #define CLOSE_FILE(fp) {if (fp != NULL) fclose(fp);}
@@ -24,5 +26,7 @@
         raise(SIGUSR1);  \
         exit(EXIT_FAILURE); \
     }
+
+void Examine(struct config *, struct result *);
 
 #endif //JUDGE_EXAMINER_H_

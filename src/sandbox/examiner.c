@@ -21,7 +21,6 @@
 
 #include "tool.h"
 #include "examiner.h"
-#include "../stat.h"
 #include "../rules/seccomp_rules.h"
 
 /* Initialize result to zero */

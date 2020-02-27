@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "stat.h"
 #include "util.h"
+#include "sandbox/examiner.h"
 
 int main(int argc, char **argv)
 {
@@ -11,6 +12,8 @@ int main(int argc, char **argv)
 
     Initialize(argc, argv);
     InitConfig(&_config);
+
+    Examine(&_config, &_result);
 
     printf("{\"cpu_time\":%d,\"real_time\":%d,\"memory\":%d,\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",
            _result.cpu_time,
