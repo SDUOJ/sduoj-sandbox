@@ -48,6 +48,7 @@ void CheckArgs(FILE *log_fp, struct config *_config, struct result *_result)
         ERROR_EXIT(INVALID_CONFIG);
 }
 
+/* Create a new thread to kill the timeout process */
 void *KillTimeout(void *timeout_info)
 {
     pid_t pid = ((struct timeout_info *)timeout_info)->pid;
@@ -66,6 +67,7 @@ void *KillTimeout(void *timeout_info)
     return NULL;
 }
 
+/* A function to run child process */
 void ChildProcess(FILE *log_fp, struct config *_config)
 {
     FILE *input_file = NULL, *output_file = NULL, *error_file = NULL;
