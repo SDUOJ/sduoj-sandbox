@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "../stat.h"
+#include "../public.h"
 
 int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
 {

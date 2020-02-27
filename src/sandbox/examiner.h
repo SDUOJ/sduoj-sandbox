@@ -1,7 +1,7 @@
 #ifndef JUDGE_EXAMINER_H_
 #define JUDGE_EXAMINER_H_
 
-#include "../stat.h"
+#include "../public.h"
 
 #define LIMITED(agrs) agrs != RLIM_INFINITY
 

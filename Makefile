@@ -16,26 +16,33 @@ $(program): $(ofiles)
 
 $(bin_dir)/%:
 	@echo ">>> Linking" $@ "<<<"
+	@if [ ! -d $(bin_dir) ]; then mkdir -p $(bin_dir); fi;
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
 	ln -sf $@ $(notdir $@)
 
 $(obj_dir)/%.o: $(src_dir)/%.c
 	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(obj_dir)/%.o: $(src_dir)/argtable/%.c
 	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(obj_dir)/%.o: $(src_dir)/rules/%.c
 	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 $(obj_dir)/%.o: $(src_dir)/sandbox/%.c
 	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
 .PHONY: clean
 clean:
-	rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
+	# rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
+	rm -rf $(dest_dir)
 	rm -f judger
+	rm -f judger.log

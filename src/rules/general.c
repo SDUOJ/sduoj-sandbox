@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "../stat.h"
+#include "../public.h"
 
 int general_seccomp_rules(struct config *_config)
 {

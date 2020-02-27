@@ -60,14 +60,18 @@ void InitConfig(struct config *_config)
     _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
     _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
     _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "judger.log";
-    
+
     _config->exe_args[0] = _config->exe_path;
-    for (i = 1; i <= exe_path->count; i++)
-        _config->exe_args[i] = (char *)exe_path->sval[i - 1];
+    for (i = 1; i <= exe_args->count; i++)
+    {
+        _config->exe_args[i] = (char *)exe_args->sval[i - 1];
+    }
     _config->exe_args[i] = NULL;
 
     for (i = 0; i < exe_envs->count; i++)
+    {
         _config->exe_envs[i] = (char *)exe_envs->sval[i];
+    }
     _config->exe_envs[i] = NULL;
 
     _config->seccomp_rules = (char *)seccomp_rules->sval[0];

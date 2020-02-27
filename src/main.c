@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "parser.h"
-#include "stat.h"
+#include "public.h"
 #include "util.h"
 #include "sandbox/examiner.h"
 

@@ -1,7 +1,7 @@
 #ifndef JUDGER_SECCOMP_RULES_H
 #define JUDGER_SECCOMP_RULES_H
 
-#include "../stat.h"
+#include "../public.h"
 
 int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file);
 int c_cpp_seccomp_rules(struct config *_config);

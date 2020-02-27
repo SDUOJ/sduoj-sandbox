@@ -1,7 +1,7 @@
 #ifndef JUDGE_UTIL_H_
 #define JUDGE_UTIL_H_
 
-#include "stat.h"
+#include "public.h"
 
 /* get uid and pid of role `nobody` */
 void GetNobody(int *uid, int *gid);
