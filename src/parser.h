@@ -2,6 +2,7 @@
 #define JUDGE_PARSER_H_
 
 #include "argtable/argtable3.h"
+#include "public.h"
 
 #define INT_PLACEHOLDER "<n>"
 #define STR_PLACEHOLDER "<str>"
@@ -31,5 +32,8 @@ struct arg_end *end;
 void *arg_table[NUM_ALLOWED_ARG + 1];
 
 /* parse from argv */
-void Initialize(int argc, char **argv);
+void Initialize(int argc, char **argv, struct config *_config);
+
+/* Initialize config from args */
+void InitConfig(struct config *_config);
 #endif //JUDGE_PARSER_H_

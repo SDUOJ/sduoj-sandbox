@@ -10,8 +10,7 @@ int main(int argc, char **argv)
     struct result _result;
     struct config _config;
 
-    Initialize(argc, argv);
-    InitConfig(&_config);
+    Initialize(argc, argv, &_config);
 
     Examine(&_config, &_result);
 

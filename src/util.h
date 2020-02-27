@@ -17,8 +17,4 @@ void PrintUsage();
 
 /* print current judger version */
 void PrintVersion();
-
-/* Initialize config from args */
-void InitConfig(struct config *_config);
-
 #endif //JUDGE_UTIL_H_

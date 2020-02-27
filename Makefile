@@ -5,10 +5,10 @@ bin_dir = $(dest_dir)/bin
 	
 CC = gcc
 LD = gcc
-CFLAGS = -g -Wall -O3 -std=c99 -pie -fPIC
+CFLAGS = -g -Wall -Werror -O3 -std=c99 -pie -fPIC
 LDFLAGS = 
 LIBS = -lpthread -lseccomp
-CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c examiner.c log.c
+CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c examiner.c logger.c
 ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 
 program = $(bin_dir)/judger
@@ -25,17 +25,7 @@ $(obj_dir)/%.o: $(src_dir)/%.c
 	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
-$(obj_dir)/%.o: $(src_dir)/argtable/%.c
-	@echo ">>> Compiling" $< "<<<"
-	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
-	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
-
-$(obj_dir)/%.o: $(src_dir)/rules/%.c
-	@echo ">>> Compiling" $< "<<<"
-	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
-	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
-
-$(obj_dir)/%.o: $(src_dir)/sandbox/%.c
+$(obj_dir)/%.o: $(src_dir)/*/%.c
 	@echo ">>> Compiling" $< "<<<"
 	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)

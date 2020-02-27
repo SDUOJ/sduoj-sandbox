@@ -9,13 +9,13 @@ The sandbox can run on `Linux` with system call `setrlimit` and `seccomp` to lim
 For this sandbox use `seccomp`, you need to add it to your system. And you can install seccomp with command followed.
 
 ```
-sudo apt-get install libseccomp-dev libseccomp2 seccomp
+$ sudo apt-get install libseccomp-dev libseccomp2 seccomp
 ```
 
 Then, you can run
 
 ```
-make
+$ make
 ```
 
 to generate the sandbox.
@@ -28,7 +28,7 @@ You can run the sandbox with such command
 
 ```
 # root privilege is needed
-sudo ./judger \
+$ sudo ./judger \
     --exe_path="/usr/bin/python3" \     # executable file path
     --exe_args="test/test_py.py"  \     # args of executable file
     --input_path="test/input.txt" \     # where to get input
@@ -41,9 +41,9 @@ Use `--help` to get more information about usages.
 
 # Manintainers
 
-@jesHrz
+[@Gene](https://github.com/GeneLiuXe)
 
-@Gene
+[@jesHrz](https://github.com/jesHrz)
 
 # Reference
 
