@@ -39,11 +39,11 @@ $ sudo ./judger \
 
 Use `--help` to get more information about usages.
 
-# Manintainers
-
-[@Gene](https://github.com/GeneLiuXe)
+# Maintainers
 
 [@jesHrz](https://github.com/jesHrz)
+
+[@Gene](https://github.com/GeneLiuXe)
 
 # Reference
 
