@@ -5,8 +5,8 @@ build/objects/*.o
 
 .DS_Store
 
-judger
-judger.log
+sandbox
+sandbox.log
 
 test/*
 

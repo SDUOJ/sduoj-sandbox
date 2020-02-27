@@ -1,10 +1,10 @@
-#ifndef JUDGE_STAT_H_
-#define JUDGE_STAT_H_
+#ifndef SANDBOX_PUBLIC_H_
+#define SANDBOX_PUBLIC_H_
 
 #include <sys/types.h>
 #include <sys/resource.h>
 
-#define PROJECT_NAME "judger"
+#define PROJECT_NAME "sandbox"
 #define VERSION 0x010000
 
 #define MAX_ARG 256
@@ -22,7 +22,7 @@ enum {
     LOAD_SECCOMP_FAILED,    /* load seccomp rules failed */
     EXECVE_FAILED,          /* run execve() failed */
     SPJ_ERROR,              /* run Special Judge failed */
-    ROOT_REQUIRED,          /* judger needs root privilege */
+    ROOT_REQUIRED,          /* sandbox needs root privilege */
     NOBODY_REQUIRED         /* user program needs run in NOBODY */
 };
 
@@ -67,4 +67,4 @@ struct result {
     int result;
 };
 
-#endif //JUDGE_STAT_H_
+#endif //SANDBOX_PUBLIC_H_

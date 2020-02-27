@@ -1,4 +1,4 @@
-# SDUOJ-Judger
+# SDUOJ-SANDBOX
 
 This is the sandbox of judger for SDUOJ, which provides a secure environment for running user's code that is submitted from web.
 

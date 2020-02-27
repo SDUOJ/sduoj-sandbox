@@ -1,5 +1,5 @@
-#ifndef JUDGE_PARSER_H_
-#define JUDGE_PARSER_H_
+#ifndef SANDBOX_PARSER_H_
+#define SANDBOX_PARSER_H_
 
 #include "argtable/argtable3.h"
 #include "public.h"
@@ -17,12 +17,12 @@ struct arg_int *max_cpu_time, /* maximum cpu time(ms) */
     *max_stack,               /* maximum stack size(byte), default 16384K */
     *max_process_number,
     *max_output_size,
-    *uid, *gid;               /* run judger in such uid and gid */
+    *uid, *gid;               /* run sandbox in such uid and gid */
 
-struct arg_str *exe_path, /* executable file that judger will run */
+struct arg_str *exe_path, /* executable file that sandbox will run */
     *input_path,          /* executable file will read in */
     *output_path,         /* executable file will print out */
-    *log_path,            /* judger will print log */
+    *log_path,            /* sandbox will print log */
     *exe_args,            /* args and envs for executable file */
     *exe_envs,
     *seccomp_rules;       /* additional seccomp_rules */
@@ -36,4 +36,4 @@ void Initialize(int argc, char **argv, struct config *_config);
 
 /* Initialize config from args */
 void InitConfig(struct config *_config);
-#endif //JUDGE_PARSER_H_
+#endif //SANDBOX_PARSER_H_

@@ -67,7 +67,7 @@ void InitConfig(struct config *_config)
     _config->exe_path = (char *)exe_path->sval[0];
     _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
     _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
-    _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "judger.log";
+    _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "sandbox.log";
 
     _config->exe_args[0] = _config->exe_path;
     for (i = 1; i <= exe_args->count; i++)

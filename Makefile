@@ -34,5 +34,5 @@ $(obj_dir)/%.o: $(src_dir)/*/%.c
 clean:
 	# rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
 	rm -rf $(dest_dir)
-	rm -f judger
-	rm -f judger.log
+	rm -f sandbox
+	rm -f sandbox.log
