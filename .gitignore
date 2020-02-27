@@ -3,6 +3,8 @@ build/objects/*.o
 
 .vscode/
 
+.DS_Store
+
 judger
 judger.log
 
