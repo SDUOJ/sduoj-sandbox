@@ -1,10 +1,10 @@
-#ifndef JUDGE_LOG_H_
-#define JUDGE_LOG_H_
+#ifndef JUDGE_LOGGER_H_
+#define JUDGE_LOGGER_H_
 
-#define LOG_LEVEL_INFO 2
 #define LOG_LEVEL_FATAL 0
-#define LOG_LEVEL_DEBUG 3
 #define LOG_LEVEL_WARNING 1
+#define LOG_LEVEL_INFO 2
+#define LOG_LEVEL_DEBUG 3
 #define LOG_BUFFER_SIZE 8192
 
 FILE *LogOpen(const char *);
@@ -23,4 +23,4 @@ void LogWrite(int level, const char *source_filename, const int line_number, con
 #define LOG_DEBUG(log_fp, x...)
 #endif
 
-#endif //JUDGE_LOG_H_
+#endif //JUDGE_LOGGER_H_

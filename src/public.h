@@ -5,7 +5,7 @@
 #include <sys/resource.h>
 
 #define PROJECT_NAME "judger"
-#define VERSION 0x000001
+#define VERSION 0x010000
 
 #define MAX_ARG 256
 #define MAX_ENV 256
