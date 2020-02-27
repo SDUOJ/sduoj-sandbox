@@ -5,6 +5,16 @@
 
 #define CLOSE_FILE(fp) {if (fp != NULL) fclose(fp);}
 
+#define LOG_ERROR(error_code) LOG_FATAL(log_fp, "Error: "#error_code);
+
+#define ERROR_EXIT(error_code)\
+    {\
+        LOG_ERROR(error_code);  \
+        _result->error = error_code; \
+        LogClose(log_fp);  \
+        return; \
+    }
+
 #define CHILD_ERROR_EXIT(error_code)\
     {\
         LOG_FATAL(log_fp, "Error: System errno: %s; Internal errno: "#error_code, strerror(errno)); \

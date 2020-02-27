@@ -25,7 +25,7 @@
 #include "../rules/seccomp_rules.h"
 
 /* Initialize result to zero */
-void InitResult(struct result *_result)
+void InitResult(FILE *log_fp, struct result *_result)
 {
     _result->cpu_time = 0;
     _result->real_time = 0;
@@ -37,7 +37,7 @@ void InitResult(struct result *_result)
 }
 
 /* Check arguments */
-void CheckArgs(struct config *_config)
+void CheckArgs(FILE *log_fp, struct config *_config, struct result *_result)
 {
 	// current user must be root
 	if (getuid() != 0) ERROR_EXIT(ROOT_REQUIRED);
@@ -179,7 +179,7 @@ void ChildProcess(FILE *log_fp, struct config *_config) {
 }
 
 /* Monitor process and require status and resource usage */
-void RequireUsage(pid_t child_pid, struct config *_config, struct rusage *resource_usage, int *status)
+void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status)
 {
 	// create new thread to monitor process running time
     pthread_t tid = 0;
@@ -189,7 +189,7 @@ void RequireUsage(pid_t child_pid, struct config *_config, struct rusage *resour
 
         if (pthread_create(&tid, NULL, KillTimeout, (void *) (&timeout_args)) != 0)
         {
-            kill_pid(child_pid);
+            KillProcess(child_pid);
             ERROR_EXIT(PTHREAD_FAILED);
         }
     }
@@ -198,7 +198,7 @@ void RequireUsage(pid_t child_pid, struct config *_config, struct rusage *resour
     // if success, return the child process ID, else return -1
     if (wait4(child_pid, status, WSTOPPED, resource_usage) == -1)
     {
-        kill_pid(child_pid);
+        KillProcess(child_pid);
         ERROR_EXIT(WAIT_FAILED);
     }
 
@@ -264,11 +264,11 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
 /* Examine and run the code */
 void Examine(struct config *_config, struct result *_result)
 {
-	CheckArgs(_config);
-	InitResult(_result);
-
 	// initialize log
 	FILE *log_fp = LogOpen(_config->log_path);
+
+	CheckArgs(log_fp, _config, _result);
+	InitResult(log_fp, _result);
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
@@ -277,15 +277,19 @@ void Examine(struct config *_config, struct result *_result)
     
     // examine the process
     if (child_pid < 0)
+    {
     	ERROR_EXIT(FORK_FAILED);
+    }
     else if (child_pid == 0)
+    {
     	ChildProcess(log_fp, _config);
+    }
     else
     {
     	int status;
     	struct rusage resource_usage;
 	
-		RequireUsage(child_pid, _config, &resource_usage, &status);
+		RequireUsage(log_fp, child_pid, _config, _result, &resource_usage, &status);
 		GenerateResult(log_fp, _config, _result, &resource_usage, &status, &start, &end);
     }
 }
