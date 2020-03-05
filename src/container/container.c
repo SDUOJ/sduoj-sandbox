@@ -204,12 +204,7 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
 
     // process exited, we may need to cancel KillTimeout thread
     if (LIMITED(_config->max_real_time))
-    {
-        if (pthread_cancel(tid) != 0)
-        {
-            // todo logging
-        };
-    }
+        pthread_cancel(tid);
 }
 
 /* Generate the result */
