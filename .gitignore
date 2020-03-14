@@ -1,11 +1,8 @@
-build/bin/*.*
-build/objects/*.o
-
 .vscode/
+build/
 
 .DS_Store
 
-sandbox
 sandbox.log
 
 test/*

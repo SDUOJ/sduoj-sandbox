@@ -18,7 +18,7 @@ $(bin_dir)/%:
 	@echo ">>> Linking" $@ "<<<"
 	@if [ ! -d $(bin_dir) ]; then mkdir -p $(bin_dir); fi;
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
-	ln -sf $@ $(notdir $@)
+	ln -s $(shell pwd)/$@ /usr/bin/sandbox
 
 $(obj_dir)/%.o: $(src_dir)/%.c
 	@echo ">>> Compiling" $< "<<<"
@@ -34,5 +34,5 @@ $(obj_dir)/%.o: $(src_dir)/*/%.c
 clean:
 	# rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
 	rm -rf $(dest_dir)
-	rm -f sandbox
+	rm -f /usr/bin/sandbox
 	rm -f sandbox.log
