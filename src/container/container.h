@@ -11,7 +11,7 @@
             fclose(fp); \
     }
 
-#define LOG_ERROR(error_code) LOG_FATAL(log_fp, "Error: " #error_code)
+#define LOG_ERROR(error_code) LOG_FATAL(log_fp, #error_code)
 
 #define KillProcess(pid) kill(pid, SIGKILL)
 
@@ -25,7 +25,7 @@
 
 #define CHILD_ERROR_EXIT(error_code)                                                                 \
     {                                                                                                \
-        LOG_FATAL(log_fp, "Error: System errno: %s; Internal errno: " #error_code, strerror(errno)); \
+        LOG_FATAL(log_fp, "System errno: %s; Internal errno: " #error_code, strerror(errno)); \
         CLOSE_FILE(input_file);                                                                      \
         if (output_file == error_file)                                                               \
         {                                                                                            \

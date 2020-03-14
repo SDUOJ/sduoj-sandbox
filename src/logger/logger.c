@@ -24,7 +24,7 @@ void LogClose(FILE *log_fp)
 
 void LogWrite(int level, const char *source_filename, const int line, const FILE *log_fp, const char *fmt, ...)
 {
-    char LOG_LEVEL_NOTE[][10] = {"FATAL", "WARNING", "INFO", "DEBUG"};
+    char LOG_LEVEL_NOTE[][10] = {"CRITICAL", "WARNING", "INFO", "DEBUG"};
     if (log_fp == NULL)
     {
         fprintf(stderr, "can not open log file");
@@ -45,8 +45,8 @@ void LogWrite(int level, const char *source_filename, const int line, const FILE
     va_end(ap);
 
     int count = snprintf(buffer, LOG_BUFFER_SIZE,
-                         "%s [%s] [%s:%s]%s\n",
-                         LOG_LEVEL_NOTE[level], datetime, source_filename, line_str, log_buffer);
+                         "[%s] [%s:%s] %s: %s\n",
+                         datetime, source_filename, line_str, LOG_LEVEL_NOTE[level], log_buffer);
     int log_fd = fileno((FILE *)log_fp);
 
     if (flock(log_fd, LOCK_EX) == 0)

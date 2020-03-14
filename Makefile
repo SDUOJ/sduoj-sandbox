@@ -18,7 +18,6 @@ $(bin_dir)/%:
 	@echo ">>> Linking" $@ "<<<"
 	@if [ ! -d $(bin_dir) ]; then mkdir -p $(bin_dir); fi;
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
-	ln -s $(shell pwd)/$@ /usr/bin/sandbox
 
 $(obj_dir)/%.o: $(src_dir)/%.c
 	@echo ">>> Compiling" $< "<<<"
@@ -30,7 +29,9 @@ $(obj_dir)/%.o: $(src_dir)/*/%.c
 	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
 	$(CC) $(CFLAGS) -c -o $@ $< $(LIBS)
 
-.PHONY: clean
+.PHONY: install clean
+install:
+	ln -s $(shell pwd)/$(program) /usr/bin/sandbox
 clean:
 	# rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
 	rm -rf $(dest_dir)
