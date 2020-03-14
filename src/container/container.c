@@ -218,8 +218,10 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
     if (WIFSIGNALED(*status) != 0)
         _result->signal = WTERMSIG(*status);
 
-    if (_result->signal == SIGUSR1)
+    if (_result->signal == SIGUSR1) 
+    {
         _result->result = SYSTEM_ERROR;
+    }
     else
     {
         _result->exit_code = WEXITSTATUS(*status);
