@@ -16,9 +16,14 @@ Then, you can run
 
 ```
 $ make
+$ sudo make install
 ```
 
-to generate the sandbox.
+to generate the sandbox. The sandbox will be linked to `/usr/bin/`. If you want to uninstall it, you can run 
+
+```
+$ sudo make clean
+```
 
 # Usage
 
