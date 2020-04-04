@@ -141,7 +141,12 @@ void ChildProcess(FILE *log_fp, struct config *_config)
         // redirect stdout -> file
         if (dup2(fileno(output_file), fileno(stdout)) == -1)
             CHILD_ERROR_EXIT(DUP2_FAILED);
+
+        if(dup2(fileno(output_file), fileno(stderr)) == -1)
+            CHILD_ERROR_EXIT(DUP2_FAILED);
     }
+
+
 
     // set gid
     gid_t group_list[] = {_config->gid};
