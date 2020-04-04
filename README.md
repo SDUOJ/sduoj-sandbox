@@ -37,9 +37,9 @@ $ sudo ./sandbox \
     --exe_path="/usr/bin/python3" \     # executable file path
     --exe_args="test/test_py.py"  \     # args of executable file
     --input_path="test/input.txt" \     # where to get input
-    --output="test/output.txt" \        # where the output should be
+    --output_path="test/output.txt" \   # where the output should be
     --seccomp_rules=general \           # systemcall filte rules, optional `c_cpp`, `c_cpp_file_io`
-    --max_memory=33554432               # maximum memnory in byte
+    --max_memory=33554432               # maximum memnory in bytes
 ```
 
 Use `--help` to get more information about usages.

@@ -40,7 +40,7 @@ dfiles = $(c_dfiles)
 
 $(depends_dir)/%.d: %.c
 	@echo ">>> Building dependency file for" $< "<<<"
-	if [ ! -d $(depends_dir) ]; then mkdir -p $(depends_dir); fi;
+	@if [ ! -d $(depends_dir) ]; then mkdir -p $(depends_dir); fi;
 	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \
 	| sed '\''s@$*.o[ ]*:@$(depends_dir)/$(notdir $@) $(obj_dir)/&@g'\'' > $@'
 
