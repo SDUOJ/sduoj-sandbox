@@ -50,10 +50,12 @@ Use `--help` to get more information about usages.
 
 [@Gene](https://github.com/GeneLiuXe)
 
-# Reference
+# Credits
 
-[QOJ-Judger](https://github.com/QingdaoU/Judger)
+I would like to extend my sincere gratitude to those projects listed below for providing us solid technical support and creative inspiration.
 
-[How-it-works](https://docs.onlinejudge.me/#/judger/how_it_works)
+- [QOJ-Judger](https://github.com/QingdaoU/Judger)
+
+- [How-it-works](https://docs.onlinejudge.me/#/judger/how_it_works)
 
 # License
