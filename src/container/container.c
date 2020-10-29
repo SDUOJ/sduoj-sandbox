@@ -135,7 +135,7 @@ void ChildProcess(FILE *log_fp, struct config *_config)
 
     if (_config->output_path != NULL)
     {
-        output_file = fopen(_config->output_path, "w");
+        output_file = fopen(_config->output_path, "a");
         if (output_file == NULL)
             CHILD_ERROR_EXIT(DUP2_FAILED);
         // redirect stdout -> file
