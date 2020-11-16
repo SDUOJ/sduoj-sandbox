@@ -48,7 +48,7 @@ include $(dfiles)
 
 .PHONY: install clean
 install:
-	ln -s $(shell pwd)/$(program) /usr/bin/sandbox
+	ln -sf $(shell pwd)/$(program) /usr/bin/sandbox
 clean:
 	# rm -f `find $(dest_dir) -type f -print | egrep -v '(CVS|cvsignore)'`
 	rm -rf $(dest_dir)
