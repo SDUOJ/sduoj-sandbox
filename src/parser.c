@@ -65,6 +65,25 @@ void InitConfig(struct config *_config)
     _config->max_process_number = max_process_number->count > 0 ? (rlim_t)*max_process_number->ival : RLIM_INFINITY;
     _config->max_output_size = max_output_size->count > 0 ? (rlim_t)*max_output_size->ival : RLIM_INFINITY;
 
+    if (_config->max_cpu_time == 0) {
+        _config->max_cpu_time = RLIM_INFINITY;
+    }
+    if (_config->max_real_time == 0) {
+        _config->max_real_time = RLIM_INFINITY;
+    }
+    if (_config->max_memory == 0) {
+        _config->max_memory = RLIM_INFINITY;
+    }
+    if (_config->max_stack == 0) {
+        _config->max_stack = (rlim_t)16 * 1024 * 1024;
+    }
+    if (_config->max_process_number == 0) {
+        _config->max_process_number = RLIM_INFINITY;
+    }
+    if (_config->max_output_size == 0) {
+        _config->max_output_size = RLIM_INFINITY;
+    }
+
     _config->exe_path = (char *)exe_path->sval[0];
     _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
     _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
