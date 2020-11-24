@@ -59,3 +59,5 @@ I would like to extend my sincere gratitude to those projects listed below for p
 - [How-it-works](https://docs.onlinejudge.me/#/judger/how_it_works)
 
 # License
+
+[STAT](https://github.com/SDUOJ/sduoj-sandbox/blob/master/LICENSE)
