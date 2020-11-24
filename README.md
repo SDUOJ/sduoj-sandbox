@@ -60,4 +60,4 @@ I would like to extend my sincere gratitude to those projects listed below for p
 
 # License
 
-[STAT](https://github.com/SDUOJ/sduoj-sandbox/blob/master/LICENSE)
+[SATA](https://github.com/SDUOJ/sduoj-sandbox/blob/master/LICENSE)
