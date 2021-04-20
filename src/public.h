@@ -32,6 +32,7 @@ enum {
     MEMORY_LIMIT_EXCEEDED = 3,
     RUNTIME_ERROR = 4,
     SYSTEM_ERROR = 5,
+    OUTPUT_LIMIT_EXCEEDED = 6,
 };
 
 struct config {
