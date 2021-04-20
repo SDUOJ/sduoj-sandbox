@@ -244,6 +244,10 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
             else
                 _result->result = RUNTIME_ERROR;
         }
+        else if (_result->signal == SIGXFSZ)
+        {
+            _result->result = OUTPUT_LIMIT_EXCEEDED;
+        }
         else
         {
             if (_result->signal != 0)
