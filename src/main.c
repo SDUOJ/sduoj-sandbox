@@ -12,9 +12,9 @@ int main(int argc, char **argv)
 
     Initialize(argc, argv, &_config);
 
-    Examine(&_config, &_result);
+    Run(&_config, &_result);
 
-    printf("{\"cpu_time\":%d,\"real_time\":%d,\"memory\":%d,\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",
+    printf("{\"cpu_time\":%u,\"real_time\":%u,\"memory\":%lu,\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",
            _result.cpu_time,
            _result.real_time,
            _result.memory,

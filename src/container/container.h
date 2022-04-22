@@ -46,5 +46,5 @@ struct timeout_info
     int timeout;
 };
 
-void Examine(struct config *, struct result *);
+void Run(struct config *, struct result *);
 #endif //SANDBOX_EXAMINER_H_

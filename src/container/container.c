@@ -217,7 +217,7 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
 {
     // get end time
     gettimeofday(end, NULL);
-    _result->real_time = (int)(end->tv_sec * 1000 + end->tv_usec / 1000 - start->tv_sec * 1000 - start->tv_usec / 1000);
+    _result->real_time = (uint32_t)(end->tv_sec * 1000 + end->tv_usec / 1000 - start->tv_sec * 1000 - start->tv_usec / 1000);
 
     // if the child process terminated because it received a signal that was not handled, acquire the signal code
     if (WIFSIGNALED(*status) != 0)
@@ -230,9 +230,9 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
     else
     {
         _result->exit_code = WEXITSTATUS(*status);
-        _result->cpu_time = (int)(resource_usage->ru_utime.tv_sec * 1000 +
+        _result->cpu_time = (uint32_t)(resource_usage->ru_utime.tv_sec * 1000 +
                                   resource_usage->ru_utime.tv_usec / 1000);
-        _result->memory = resource_usage->ru_maxrss * 1024; /* bytes here, ru_maxrss is in kilobytes */
+        _result->memory = (uint64_t)(resource_usage->ru_maxrss * 1024); /* bytes here, ru_maxrss is in kilobytes */
 
         if (_result->exit_code != 0)
             _result->result = RUNTIME_ERROR;
@@ -268,7 +268,7 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
 }
 
 /* Examine and run the code */
-void Examine(struct config *_config, struct result *_result)
+void Run(struct config *_config, struct result *_result)
 {
     int status;
     pid_t child_pid;

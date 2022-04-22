@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <sys/resource.h>
+#include <stdint.h>
 
 #define PROJECT_NAME "sandbox"
 #define VERSION 0x010000
@@ -58,9 +59,9 @@ struct config {
 };
 
 struct result {
-    int cpu_time;
-    int real_time;
-    int memory;
+    uint32_t cpu_time;
+    uint32_t real_time;
+    uint64_t memory;
     int signal;
     int exit_code;
     int error;
