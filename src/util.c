@@ -8,18 +8,8 @@
 
 void GetNobody(int *uid, int *gid)
 {
-    struct passwd *nobody;
-    nobody = getpwnam("nobody");
-    if (!nobody)
-    {
-        *uid = 65534;
-        *gid = 65534;
-    }
-    else
-    {
-        *uid = nobody->pw_uid;
-        *gid = nobody->pw_gid;
-    }
+    *uid = 65534;
+    *gid = 65534;
 }
 
 void Halt(int exit_coide)

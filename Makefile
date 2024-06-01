@@ -1,13 +1,14 @@
-dest_dir = build
+dest_dir = /opt/sduoj-sandbox
 src_dir = src
-bin_dir = $(dest_dir)/bin
-obj_dir = $(dest_dir)/objects
-depends_dir = $(dest_dir)/depends
-	
+tmp_dir = build
+bin_dir = $(tmp_dir)/bin
+obj_dir = $(tmp_dir)/objects
+depends_dir = $(tmp_dir)/depends
+
 CC = gcc
 LD = gcc
-CFLAGS = -g -Wall -Werror -O3 -std=c99 -pie -fPIC
-LDFLAGS = 
+CFLAGS = -g -Wall -Werror -O3 -std=c99 -pie -fPIC -static
+LDFLAGS = -static
 LIBS = -lpthread -lseccomp
 
 vpath %.c  src/argtable:src/container:src/logger:src/rules:src
@@ -48,8 +49,12 @@ include $(dfiles)
 
 .PHONY: install clean
 install:
-	ln -sf $(shell pwd)/$(program) /usr/bin/sandbox
-clean:
-	rm -rf $(dest_dir)
-	rm -f sandbox.log
+	mkdir -p ${dest_dir}/bin
+	cp $(shell pwd)/$(program) ${dest_dir}/bin
+	ln -sf ${dest_dir}/bin/sandbox /usr/bin/sandbox
+uninstall:
+	rm -rf ${dest_dir}
 	rm -f /usr/bin/sandbox
+clean:
+	rm -rf $(tmp_dir)
+	rm -f sandbox.log

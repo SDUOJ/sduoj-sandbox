@@ -6,23 +6,23 @@ The sandbox can run on `Linux` with system call `setrlimit` and `seccomp` to lim
 
 # Install
 
-For this sandbox use `seccomp`, you need to add it to your system. And you can install seccomp with command followed.
+Building this sandbox need `libseccomp-dev`, you can install it with command followed.
 
 ```
-$ sudo apt-get install libseccomp-dev libseccomp2 seccomp
+$ sudo apt-get install libseccomp-dev
 ```
 
-Then, you can run
+Then, you can install the sandbox to `/opt/sduoj-sandbox/bin/sandbox` and `/usr/bin/sandbox`
 
 ```
 $ make
 $ sudo make install
 ```
 
-to generate the sandbox. The sandbox will be linked to `/usr/bin/`. If you want to uninstall it, you can run 
+If you want to uninstall it, you can run 
 
 ```
-$ sudo make clean
+$ sudo make uninstall
 ```
 
 # Usage
