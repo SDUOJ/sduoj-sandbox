@@ -9,33 +9,35 @@
 
 #define NUM_ALLOWED_ARG 17
 
-struct arg_lit *help, *version;
+// 只声明，不定义
+extern struct arg_lit *help, *version;
 
-struct arg_int 
-    *max_cpu_time,            /* maximum cpu time(ms) */
-    *max_real_time,           /* maximum real time, include blocked time(ms) */
+extern struct arg_int 
+    *max_cpu_time,
+    *max_real_time,
     *max_process_number,
     *max_output_size,
-    *uid, *gid;               /* run sandbox in such uid and gid */
+    *uid, *gid;
 
-struct arg_str 
-    *max_memory,              /* maximum virtual memory(byte) */
-    *max_stack,               /* maximum stack size(byte), default 16384K */
-    *exe_path,                /* executable file that sandbox will run */
-    *input_path,              /* executable file will read in */
-    *output_path,             /* executable file will print out */
-    *log_path,                /* sandbox will print log */
-    *exe_args,                /* args and envs for executable file */
+extern struct arg_str 
+    *max_memory,
+    *max_stack,
+    *exe_path,
+    *input_path,
+    *output_path,
+    *log_path,
+    *exe_args,
     *exe_envs,
-    *seccomp_rules;           /* additional seccomp_rules */
+    *seccomp_rules;
 
-struct arg_end *end;
+extern struct arg_end *end;
 
-void *arg_table[NUM_ALLOWED_ARG + 1];
+extern void *arg_table[NUM_ALLOWED_ARG + 1];
 
 /* parse from argv */
 void Initialize(int argc, char **argv, struct config *_config);
 
 /* Initialize config from args */
 void InitConfig(struct config *_config);
-#endif //SANDBOX_PARSER_H_
+
+#endif // SANDBOX_PARSER_H_
