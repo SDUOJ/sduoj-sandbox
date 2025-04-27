@@ -6,6 +6,30 @@
 
 #define MAX_ERROR 10
 
+struct arg_lit *help, *version;
+
+struct arg_int 
+    *max_cpu_time,
+    *max_real_time,
+    *max_process_number,
+    *max_output_size,
+    *uid, *gid;
+
+struct arg_str 
+    *max_memory,
+    *max_stack,
+    *exe_path,
+    *input_path,
+    *output_path,
+    *log_path,
+    *exe_args,
+    *exe_envs,
+    *seccomp_rules;
+
+struct arg_end *end;
+
+void *arg_table[NUM_ALLOWED_ARG + 1];
+
 void Initialize(int argc, char **argv, struct config *_config)
 {
     arg_table[0] = (help = arg_litn(NULL, "help", 0, 1, "Display help and exit."));
