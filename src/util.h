@@ -3,7 +3,7 @@
 
 #include "public.h"
 
-/* get uid and pid of role `nobody` */
+/* get uid and gid of user `nobody` */
 void GetNobody(int *uid, int *gid);
 
 /* release arg table and exit */
