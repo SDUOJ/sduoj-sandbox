@@ -69,14 +69,9 @@ program is running. Three preset policies are available:
 
 | Name | Behaviour | Typical use |
 |------|-----------|-------------|
-| `c_cpp` | Whitelist allowing only common computation related syscalls. Opening
-files for writing is blocked. | Compiled C/C++ programs without file output |
-| `c_cpp_file_io` | Same as `c_cpp` but file writes and descriptor duplication
-(`dup*`) are permitted. | C/C++ programs that need to create or write files |
-| `general` | Blacklist based policy intended for interpreters. It kills
-processes that attempt to fork and denies opening files in write mode. The
-`socket` syscall returns `EACCES`. | Scripting languages or other dynamic
-environments |
+| `c_cpp` | Whitelist allowing only common computation related syscalls. Opening files for writing is blocked. | Compiled C/C++ programs without file output |
+| `c_cpp_file_io` | Same as `c_cpp` but file writes and descriptor duplication (`dup*`) are permitted. | C/C++ programs that need to create or write files |
+| `general` | Blacklist based policy intended for interpreters. It kills processes that attempt to fork and denies opening files in write mode. The `socket` syscall returns `EACCES`. | Scripting languages or other dynamic environments |
 
 After the program finishes, it outputs a JSON line describing the result and resource usage.
 
