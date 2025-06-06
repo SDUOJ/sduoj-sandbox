@@ -8,14 +8,23 @@
 
 void GetNobody(int *uid, int *gid)
 {
-    *uid = 65534;
-    *gid = 65534;
+    struct passwd *pwd = getpwnam("nobody");
+    if (pwd != NULL)
+    {
+        *uid = pwd->pw_uid;
+        *gid = pwd->pw_gid;
+    }
+    else
+    {
+        *uid = 65534;
+        *gid = 65534;
+    }
 }
 
-void Halt(int exit_coide)
+void Halt(int exit_code)
 {
     arg_freetable(arg_table, sizeof(arg_table) / sizeof(arg_table[0]));
-    exit(exit_coide);
+    exit(exit_code);
 }
 
 void UnexceptedArg()

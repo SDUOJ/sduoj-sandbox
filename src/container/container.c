@@ -128,7 +128,7 @@ void ChildProcess(FILE *log_fp, struct config *_config)
         // On error, -1 is returned, and errno is set appropriately.
         if (dup2(fileno(input_file), fileno(stdin)) == -1)
         {
-            // todo log
+            LOG_FATAL(log_fp, "dup2 stdin failed: %s", strerror(errno));
             CHILD_ERROR_EXIT(DUP2_FAILED);
         }
     }
