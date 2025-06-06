@@ -34,7 +34,7 @@ sudo ./sandbox \
     --exe_args "test/test_py.py"  \        # arguments for the executable
     --input_path "test/input.txt" \        # where to get input
     --output_path "test/output.txt" \      # where the output should be
-    --seccomp_rules=general \              # systemcall filter rules, optional `c_cpp`, `c_cpp_file_io`
+    --seccomp_rules=general \              # seccomp preset: `c_cpp`, `c_cpp_file_io`, or `general`
     --max_memory=33554432                  # maximum memory in bytes
 ```
 
@@ -62,7 +62,74 @@ Use `--help` to get a concise overview of all options.
 | `--help` | Show usage information | – |
 | `--version` | Show program version | – |
 
+### Preset Seccomp Rules
+
+The `--seccomp_rules` option controls which system calls are allowed while the
+program is running. Three preset policies are available:
+
+| Name | Behaviour | Typical use |
+|------|-----------|-------------|
+| `c_cpp` | Whitelist allowing only common computation related syscalls. Opening
+files for writing is blocked. | Compiled C/C++ programs without file output |
+| `c_cpp_file_io` | Same as `c_cpp` but file writes and descriptor duplication
+(`dup*`) are permitted. | C/C++ programs that need to create or write files |
+| `general` | Blacklist based policy intended for interpreters. It kills
+processes that attempt to fork and denies opening files in write mode. The
+`socket` syscall returns `EACCES`. | Scripting languages or other dynamic
+environments |
+
 After the program finishes, it outputs a JSON line describing the result and resource usage.
+
+### Result JSON Format
+
+After execution the sandbox prints a single JSON object describing how the
+program ran. A typical output looks like:
+
+```json
+{"cpu_time":12,"real_time":15,"memory":204800,"signal":0,"exit_code":0,"error":0,"result":0}
+```
+
+The object contains the following fields:
+
+| Field | Meaning |
+|-------|---------|
+| `cpu_time` | User CPU time consumed (ms) |
+| `real_time` | Wall clock time from start to finish (ms) |
+| `memory` | Peak memory usage in bytes |
+| `signal` | Signal that terminated the process, or `0` if none |
+| `exit_code` | Exit status of the program |
+| `error` | Sandbox error code |
+| `result` | Final judgement result code |
+
+#### Error Code Values
+
+| Value | Name | Description |
+|----|---------------|--------------------------------|
+| 0  | `SUCCESS` | everything is ok |
+| 1  | `INVALID_CONFIG` | invalid config |
+| 2  | `FORK_FAILED` | `fork()` failed |
+| 3  | `PTHREAD_FAILED` | thread creation failed |
+| 4  | `WAIT_FAILED` | `wait4()` failed |
+| 5  | `DUP2_FAILED` | `dup2()` failed |
+| 6  | `SETRLIMIT_FAILED` | `setrlimit()` failed |
+| 7  | `SETUID_FAILED` | `setuid()` or `setgid()` failed |
+| 8  | `LOAD_SECCOMP_FAILED` | loading seccomp rules failed |
+| 9  | `EXECVE_FAILED` | `execve()` failed |
+| 10 | `SPJ_ERROR` | Special Judge failed |
+| 11 | `ROOT_REQUIRED` | sandbox must run as root |
+| 12 | `NOBODY_REQUIRED` | user program must run as nobody |
+
+#### Result Code Values
+
+| Value | Name | Description |
+|----|---------------------------|--------------------------------|
+| 0 | `SUCCESS` | program finished normally |
+| 1 | `CPU_TIME_LIMIT_EXCEEDED` | exceeded CPU time limit |
+| 2 | `REAL_TIME_LIMIT_EXCEEDED` | exceeded real time limit |
+| 3 | `MEMORY_LIMIT_EXCEEDED` | exceeded memory limit |
+| 4 | `RUNTIME_ERROR` | runtime error or killed by signal |
+| 5 | `SYSTEM_ERROR` | sandbox system error |
+| 6 | `OUTPUT_LIMIT_EXCEEDED` | exceeded output size limit |
 
 ## Maintainers
 
