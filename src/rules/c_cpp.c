@@ -18,7 +18,10 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
                                 SCMP_SYS(sysinfo), SCMP_SYS(write),
                                 SCMP_SYS(writev), SCMP_SYS(lseek),
                                 SCMP_SYS(clock_gettime),
-                                SCMP_SYS(set_tid_address)};
+                                SCMP_SYS(set_tid_address), SCMP_SYS(futex),
+                                SCMP_SYS(set_robust_list), SCMP_SYS(rt_sigaction),
+                                SCMP_SYS(rt_sigprocmask), SCMP_SYS(sigaltstack),
+                                SCMP_SYS(getrandom)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
