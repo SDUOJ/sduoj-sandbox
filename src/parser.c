@@ -3,6 +3,7 @@
 
 #include <signal.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MAX_ERROR 10
 
@@ -29,6 +30,8 @@ struct arg_str
 struct arg_end *end;
 
 void *arg_table[NUM_ALLOWED_ARG + 1];
+
+static void PrintConfig(struct config *_config);
 
 void Initialize(int argc, char **argv, struct config *_config)
 {
@@ -74,6 +77,8 @@ void Initialize(int argc, char **argv, struct config *_config)
     signal(SIGINT, Halt);
 
     InitConfig(_config);
+
+    PrintConfig(_config);
 
     return;
 }
@@ -131,4 +136,30 @@ void InitConfig(struct config *_config)
     GetNobody(&nobody_uid, &nobody_gid);
     _config->uid = uid->count > 0 ? (uid_t)*uid->ival : nobody_uid;
     _config->gid = gid->count > 0 ? (gid_t)*gid->ival : nobody_gid;
+}
+
+static void PrintConfig(struct config *_config)
+{
+    int i;
+    printf("max_cpu_time: %llu\n", (unsigned long long)_config->max_cpu_time);
+    printf("max_real_time: %llu\n", (unsigned long long)_config->max_real_time);
+    printf("max_memory: %llu\n", (unsigned long long)_config->max_memory);
+    printf("max_stack: %llu\n", (unsigned long long)_config->max_stack);
+    printf("max_process_number: %llu\n", (unsigned long long)_config->max_process_number);
+    printf("max_output_size: %llu\n", (unsigned long long)_config->max_output_size);
+    printf("exe_path: %s\n", _config->exe_path ? _config->exe_path : "(null)");
+    printf("input_path: %s\n", _config->input_path ? _config->input_path : "(null)");
+    printf("output_path: %s\n", _config->output_path ? _config->output_path : "(null)");
+    printf("log_path: %s\n", _config->log_path ? _config->log_path : "(null)");
+    for (i = 0; _config->exe_args[i] != NULL; i++)
+    {
+        printf("exe_args[%d]: %s\n", i, _config->exe_args[i]);
+    }
+    for (i = 0; _config->exe_envs[i] != NULL; i++)
+    {
+        printf("exe_envs[%d]: %s\n", i, _config->exe_envs[i]);
+    }
+    printf("seccomp_rules: %s\n", _config->seccomp_rules ? _config->seccomp_rules : "(null)");
+    printf("uid: %d\n", _config->uid);
+    printf("gid: %d\n", _config->gid);
 }
