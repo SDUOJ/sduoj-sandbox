@@ -7,15 +7,16 @@
 #define INT_PLACEHOLDER "<n>"
 #define STR_PLACEHOLDER "<str>"
 
-#define NUM_ALLOWED_ARG 17
+#define NUM_ALLOWED_ARG 18
 
 extern struct arg_lit *help, *version;
 
-extern struct arg_int 
+extern struct arg_int
     *max_cpu_time,            /* maximum cpu time(ms) */
     *max_real_time,           /* maximum real time, include blocked time(ms) */
     *max_process_number,
     *max_output_size,
+    *print_args,
     *uid, *gid;               /* run sandbox in such uid and gid */
 
 extern struct arg_str 

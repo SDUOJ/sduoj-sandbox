@@ -54,6 +54,8 @@ struct config {
     
     char *seccomp_rules;
 
+    int print_args;
+
     uid_t uid;
     gid_t gid;
 };

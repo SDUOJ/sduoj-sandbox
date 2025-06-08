@@ -14,6 +14,7 @@ struct arg_int
     *max_real_time,
     *max_process_number,
     *max_output_size,
+    *print_args,
     *uid, *gid;
 
 struct arg_str 
@@ -50,9 +51,10 @@ void Initialize(int argc, char **argv, struct config *_config)
     arg_table[12] = (exe_args = arg_strn(NULL, "exe_args", STR_PLACEHOLDER, 0, 255, "Arguments for exectuable file."));
     arg_table[13] = (exe_envs = arg_strn(NULL, "exe_envs", STR_PLACEHOLDER, 0, 255, "Environments for executable file."));
     arg_table[14] = (seccomp_rules = arg_strn(NULL, "seccomp_rules", STR_PLACEHOLDER, 0, 1, "Seccomp rules."));
-    arg_table[15] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
-    arg_table[16] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
-    arg_table[17] = (end = arg_end(MAX_ERROR));
+    arg_table[15] = (print_args = arg_intn(NULL, "print_args", INT_PLACEHOLDER, 0, 1, "Print args after config (0 or 1)."));
+    arg_table[16] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
+    arg_table[17] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
+    arg_table[18] = (end = arg_end(MAX_ERROR));
 
     int nerrors = arg_parse(argc, argv, arg_table);
 
@@ -78,7 +80,8 @@ void Initialize(int argc, char **argv, struct config *_config)
 
     InitConfig(_config);
 
-    PrintConfig(_config);
+    if (_config->print_args == 1)
+        PrintConfig(_config);
 
     return;
 }
@@ -129,6 +132,14 @@ void InitConfig(struct config *_config)
     {
         _config->exe_envs[i] = TrimDoubleQuotes((char *)exe_envs->sval[i]);
     }
+    if (exe_envs->count == 0)
+    {
+        extern char **environ;
+        for (i = 0; environ[i] != NULL && i < MAX_ENV; i++)
+        {
+            _config->exe_envs[i] = environ[i];
+        }
+    }
     _config->exe_envs[i] = NULL;
 
     _config->seccomp_rules = seccomp_rules->count > 0 ? TrimDoubleQuotes((char *)seccomp_rules->sval[0]) : NULL;
@@ -136,6 +147,7 @@ void InitConfig(struct config *_config)
     GetNobody(&nobody_uid, &nobody_gid);
     _config->uid = uid->count > 0 ? (uid_t)*uid->ival : nobody_uid;
     _config->gid = gid->count > 0 ? (gid_t)*gid->ival : nobody_gid;
+    _config->print_args = print_args->count > 0 ? *print_args->ival : 0;
 }
 
 static void PrintConfig(struct config *_config)
@@ -162,4 +174,5 @@ static void PrintConfig(struct config *_config)
     printf("seccomp_rules: %s\n", _config->seccomp_rules ? _config->seccomp_rules : "(null)");
     printf("uid: %d\n", _config->uid);
     printf("gid: %d\n", _config->gid);
+    printf("print_args: %d\n", _config->print_args);
 }

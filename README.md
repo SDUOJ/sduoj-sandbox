@@ -56,6 +56,7 @@ Use `--help` to get a concise overview of all options.
 | `--log_path <str>` | Log file path | `sandbox.log` |
 | `--exe_args <str>` | Arguments for the executable (repeatable) | none |
 | `--exe_envs <str>` | Environment variables (repeatable) | none |
+| `--print_args <n>` | Print parsed arguments when set to `1` | `0` |
 | `--seccomp_rules <str>` | Seccomp filter (`c_cpp`, `c_cpp_file_io`, `general`) | none |
 | `--uid <n>` | UID for running the executable (default `nobody`) | system nobody |
 | `--gid <n>` | GID for running the executable (default `nobody`) | system nobody |
