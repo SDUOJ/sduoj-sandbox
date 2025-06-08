@@ -212,6 +212,33 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
         pthread_cancel(tid);
 }
 
+static void LogIllegalSyscall(FILE *log_fp, const char *exe_path)
+{
+    FILE *fp = popen("dmesg | tail -n 20", "r");
+    if (!fp)
+        return;
+    char line[512];
+    int syscall_no = -1;
+    const char *base = strrchr(exe_path, '/');
+    base = base ? base + 1 : exe_path;
+    while (fgets(line, sizeof(line), fp))
+    {
+        if (strstr(line, "syscall=") && strstr(line, base))
+        {
+            char *p = strstr(line, "syscall=");
+            if (p)
+            {
+                syscall_no = atoi(p + 8);
+            }
+        }
+    }
+    pclose(fp);
+    if (syscall_no != -1)
+        LOG_FATAL(log_fp, "Illegal system call: %d", syscall_no);
+    else
+        LOG_FATAL(log_fp, "Illegal system call detected, but could not identify syscall");
+}
+
 /* Generate the result */
 void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status, struct timeval *start, struct timeval *end)
 {
@@ -243,6 +270,11 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
                 _result->result = MEMORY_LIMIT_EXCEEDED;
             else
                 _result->result = RUNTIME_ERROR;
+        }
+        else if (_result->signal == SIGSYS)
+        {
+            LogIllegalSyscall(log_fp, _config->exe_path);
+            _result->result = RUNTIME_ERROR;
         }
         else if (_result->signal == SIGXFSZ)
         {
