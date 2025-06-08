@@ -17,4 +17,7 @@ void PrintUsage();
 
 /* print current sandbox version */
 void PrintVersion();
+
+/* remove surrounding double quotes from a string */
+char *TrimDoubleQuotes(char *str);
 #endif //SANDBOX_UTIL_H_
