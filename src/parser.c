@@ -108,25 +108,25 @@ void InitConfig(struct config *_config)
         _config->max_output_size = RLIM_INFINITY;
     }
 
-    _config->exe_path = (char *)exe_path->sval[0];
-    _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
-    _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
-    _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "sandbox.log";
+    _config->exe_path = TrimDoubleQuotes((char *)exe_path->sval[0]);
+    _config->input_path = input_path->count > 0 ? TrimDoubleQuotes((char *)input_path->sval[0]) : "/dev/stdin";
+    _config->output_path = output_path->count > 0 ? TrimDoubleQuotes((char *)output_path->sval[0]) : "/dev/stdout";
+    _config->log_path = log_path->count > 0 ? TrimDoubleQuotes((char *)log_path->sval[0]) : "sandbox.log";
 
     _config->exe_args[0] = _config->exe_path;
     for (i = 1; i <= exe_args->count; i++)
     {
-        _config->exe_args[i] = (char *)exe_args->sval[i - 1];
+        _config->exe_args[i] = TrimDoubleQuotes((char *)exe_args->sval[i - 1]);
     }
     _config->exe_args[i] = NULL;
 
     for (i = 0; i < exe_envs->count; i++)
     {
-        _config->exe_envs[i] = (char *)exe_envs->sval[i];
+        _config->exe_envs[i] = TrimDoubleQuotes((char *)exe_envs->sval[i]);
     }
     _config->exe_envs[i] = NULL;
 
-    _config->seccomp_rules = seccomp_rules->count > 0 ? (char *)seccomp_rules->sval[0] : NULL;
+    _config->seccomp_rules = seccomp_rules->count > 0 ? TrimDoubleQuotes((char *)seccomp_rules->sval[0]) : NULL;
 
     GetNobody(&nobody_uid, &nobody_gid);
     _config->uid = uid->count > 0 ? (uid_t)*uid->ival : nobody_uid;

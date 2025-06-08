@@ -44,3 +44,16 @@ void PrintVersion()
 {
     printf("Version: %d.%d.%d\n", (VERSION >> 16) & 0xff, (VERSION >> 8) & 0xff, VERSION & 0xff);
 }
+
+char *TrimDoubleQuotes(char *str)
+{
+    if (str == NULL)
+        return NULL;
+    size_t len = strlen(str);
+    if (len >= 2 && str[0] == '"' && str[len - 1] == '"')
+    {
+        str[len - 1] = '\0';
+        memmove(str, str + 1, len - 1);
+    }
+    return str;
+}
