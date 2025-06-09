@@ -22,7 +22,9 @@ int syscalls_whitelist[] = {SCMP_SYS(read), SCMP_SYS(pread64), SCMP_SYS(fstat),
                                 SCMP_SYS(set_robust_list), SCMP_SYS(rt_sigaction),
                                 SCMP_SYS(rt_sigprocmask), SCMP_SYS(sigaltstack),
                                 SCMP_SYS(getrandom), SCMP_SYS(rseq),
-                                SCMP_SYS(prlimit64)};
+                                SCMP_SYS(newfstatat), SCMP_SYS(prlimit64),
+                                SCMP_SYS(sysinfo), SCMP_SYS(readv),
+                                SCMP_SYS(faccessat)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
