@@ -111,9 +111,10 @@ The object contains the following fields:
 | 7  | `SETUID_FAILED` | `setuid()` or `setgid()` failed |
 | 8  | `LOAD_SECCOMP_FAILED` | loading seccomp rules failed |
 | 9  | `EXECVE_FAILED` | `execve()` failed |
-| 10 | `SPJ_ERROR` | Special Judge failed |
-| 11 | `ROOT_REQUIRED` | sandbox must run as root |
-| 12 | `NOBODY_REQUIRED` | user program must run as nobody |
+| 10 | `PTRACE_FAILED` | `ptrace()` failed |
+| 11 | `SPJ_ERROR` | Special Judge failed |
+| 12 | `ROOT_REQUIRED` | sandbox must run as root |
+| 13 | `NOBODY_REQUIRED` | user program must run as nobody |
 
 #### Result Code Values
 

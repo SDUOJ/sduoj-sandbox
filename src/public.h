@@ -22,6 +22,7 @@ enum {
     SETUID_FAILED,          /* run setuid() failed */
     LOAD_SECCOMP_FAILED,    /* load seccomp rules failed */
     EXECVE_FAILED,          /* run execve() failed */
+    PTRACE_FAILED,          /* ptrace failed */
     SPJ_ERROR,              /* run Special Judge failed */
     ROOT_REQUIRED,          /* sandbox needs root privilege */
     NOBODY_REQUIRED         /* user program needs run in NOBODY */

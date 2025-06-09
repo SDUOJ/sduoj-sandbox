@@ -14,6 +14,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/ptrace.h>
+#include <sys/user.h>
 
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -83,6 +85,10 @@ void *KillTimeout(void *timeout_info)
 void ChildProcess(FILE *log_fp, struct config *_config)
 {
     FILE *input_file = NULL, *output_file = NULL, *error_file = NULL;
+
+    if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1)
+        CHILD_ERROR_EXIT(PTRACE_FAILED);
+    raise(SIGSTOP);
 
     // Check stack
     if (LIMITED(_config->max_stack))
@@ -203,9 +209,8 @@ void ChildProcess(FILE *log_fp, struct config *_config)
 }
 
 /* Monitor process and require status and resource usage */
-void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status)
+void MonitorUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status)
 {
-    // create new thread to monitor process running time
     pthread_t tid = 0;
     if (LIMITED(_config->max_real_time))
     {
@@ -218,15 +223,42 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
         }
     }
 
-    // wait for child process to terminate and require the status and resource usage of the child
-    // if success, return the child process ID, else return -1
-    if (wait4(child_pid, status, WSTOPPED, resource_usage) == -1)
+    while (1)
     {
-        KillProcess(child_pid);
-        ERROR_EXIT(WAIT_FAILED);
+        if (wait4(child_pid, status, 0, resource_usage) == -1)
+        {
+            KillProcess(child_pid);
+            ERROR_EXIT(WAIT_FAILED);
+        }
+
+        if (WIFEXITED(*status) || WIFSIGNALED(*status))
+            break;
+
+        if (WIFSTOPPED(*status) && WSTOPSIG(*status) == SIGTRAP)
+        {
+            int event = (*status >> 16) & 0xffff;
+            if (event == PTRACE_EVENT_SECCOMP)
+            {
+                long sc = ptrace(PTRACE_PEEKUSER, child_pid, sizeof(long) * ORIG_RAX, 0);
+                LOG_FATAL(log_fp, "Illegal system call: %ld", sc);
+                KillProcess(child_pid);
+            }
+            if (ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
+            {
+                KillProcess(child_pid);
+                ERROR_EXIT(PTRACE_FAILED);
+            }
+        }
+        else
+        {
+            if (ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
+            {
+                KillProcess(child_pid);
+                ERROR_EXIT(PTRACE_FAILED);
+            }
+        }
     }
 
-    // process exited, we may need to cancel KillTimeout thread
     if (LIMITED(_config->max_real_time))
         pthread_cancel(tid);
 }
@@ -319,7 +351,23 @@ void Run(struct config *_config, struct result *_result)
     }
     else
     {
-        RequireUsage(log_fp, child_pid, _config, _result, &resource_usage, &status);
+        if (waitpid(child_pid, &status, 0) == -1)
+        {
+            KillProcess(child_pid);
+            ERROR_EXIT(WAIT_FAILED);
+        }
+        if (ptrace(PTRACE_SETOPTIONS, child_pid, 0, PTRACE_O_TRACESECCOMP) == -1)
+        {
+            KillProcess(child_pid);
+            ERROR_EXIT(PTRACE_FAILED);
+        }
+        if (ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
+        {
+            KillProcess(child_pid);
+            ERROR_EXIT(PTRACE_FAILED);
+        }
+
+        MonitorUsage(log_fp, child_pid, _config, _result, &resource_usage, &status);
         GenerateResult(log_fp, _config, _result, &resource_usage, &status, &start, &end);
     }
 }
