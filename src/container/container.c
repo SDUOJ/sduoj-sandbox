@@ -23,6 +23,17 @@
 #include "../logger/logger.h"
 #include "../rules/seccomp_rules.h"
 
+static FILE *g_sigsys_log_fp = NULL;
+
+static void SigsysHandler(int sig, siginfo_t *info, void *ucontext)
+{
+    if (g_sigsys_log_fp != NULL && info != NULL)
+    {
+        LOG_FATAL(g_sigsys_log_fp, "Illegal system call: %d", info->si_syscall);
+    }
+    _exit(1);
+}
+
 /* Initialize result to zero */
 void InitResult(struct result *_result)
 {
@@ -157,6 +168,14 @@ void ChildProcess(FILE *log_fp, struct config *_config)
     if (_config->uid != -1 && setuid(_config->uid) == -1)
         CHILD_ERROR_EXIT(SETUID_FAILED);
 
+    g_sigsys_log_fp = log_fp;
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = SigsysHandler;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGSYS, &sa, NULL);
+
     // load seccomp
     if (_config->seccomp_rules != NULL)
     {
@@ -212,32 +231,6 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
         pthread_cancel(tid);
 }
 
-static void LogIllegalSyscall(FILE *log_fp, const char *exe_path)
-{
-    FILE *fp = popen("dmesg | tail -n 20", "r");
-    if (!fp)
-        return;
-    char line[512];
-    int syscall_no = -1;
-    const char *base = strrchr(exe_path, '/');
-    base = base ? base + 1 : exe_path;
-    while (fgets(line, sizeof(line), fp))
-    {
-        if (strstr(line, "syscall=") && strstr(line, base))
-        {
-            char *p = strstr(line, "syscall=");
-            if (p)
-            {
-                syscall_no = atoi(p + 8);
-            }
-        }
-    }
-    pclose(fp);
-    if (syscall_no != -1)
-        LOG_FATAL(log_fp, "Illegal system call: %d", syscall_no);
-    else
-        LOG_FATAL(log_fp, "Illegal system call detected, but could not identify syscall");
-}
 
 /* Generate the result */
 void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status, struct timeval *start, struct timeval *end)
@@ -273,7 +266,6 @@ void GenerateResult(FILE *log_fp, struct config *_config, struct result *_result
         }
         else if (_result->signal == SIGSYS)
         {
-            LogIllegalSyscall(log_fp, _config->exe_path);
             _result->result = RUNTIME_ERROR;
         }
         else if (_result->signal == SIGXFSZ)
