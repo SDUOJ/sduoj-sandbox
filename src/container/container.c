@@ -34,7 +34,8 @@ static void SigsysHandler(int sig, siginfo_t *info, void *ucontext)
     {
         LOG_FATAL(g_sigsys_log_fp, "Illegal system call: %d", info->si_syscall);
     }
-    _exit(1);
+    signal(SIGSYS, SIG_DFL);
+    raise(SIGSYS);
 }
 
 /* Initialize result to zero */
@@ -213,6 +214,7 @@ void ChildProcess(FILE *log_fp, struct config *_config)
 void MonitorUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct result *_result, struct rusage *resource_usage, int *status)
 {
     pthread_t tid = 0;
+    int killed = 0;
     if (LIMITED(_config->max_real_time))
     {
         struct timeout_info timeout_args = {child_pid, _config->max_real_time};
@@ -243,8 +245,9 @@ void MonitorUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
                 long sc = ptrace(PTRACE_PEEKUSER, child_pid, sizeof(long) * ORIG_RAX, 0);
                 LOG_FATAL(log_fp, "Illegal system call: %ld", sc);
                 KillProcess(child_pid);
+                killed = 1;
             }
-            if (ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
+            if (!killed && ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
             {
                 KillProcess(child_pid);
                 ERROR_EXIT(PTRACE_FAILED);
@@ -252,7 +255,7 @@ void MonitorUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
         }
         else
         {
-            if (ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
+            if (!killed && ptrace(PTRACE_CONT, child_pid, NULL, NULL) == -1)
             {
                 KillProcess(child_pid);
                 ERROR_EXIT(PTRACE_FAILED);

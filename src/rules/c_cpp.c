@@ -9,7 +9,7 @@
 
 int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
 {
-    int syscalls_whitelist[] = {SCMP_SYS(read), SCMP_SYS(fstat),
+int syscalls_whitelist[] = {SCMP_SYS(read), SCMP_SYS(pread64), SCMP_SYS(fstat),
                                 SCMP_SYS(mmap), SCMP_SYS(mprotect),
                                 SCMP_SYS(munmap), SCMP_SYS(uname),
                                 SCMP_SYS(arch_prctl), SCMP_SYS(brk),
@@ -21,7 +21,8 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
                                 SCMP_SYS(set_tid_address), SCMP_SYS(futex),
                                 SCMP_SYS(set_robust_list), SCMP_SYS(rt_sigaction),
                                 SCMP_SYS(rt_sigprocmask), SCMP_SYS(sigaltstack),
-                                SCMP_SYS(getrandom)};
+                                SCMP_SYS(getrandom), SCMP_SYS(rseq),
+                                SCMP_SYS(prlimit64)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
