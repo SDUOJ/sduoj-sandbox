@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
+#include <sys/reg.h>
 
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -368,6 +369,9 @@ void Run(struct config *_config, struct result *_result)
         }
 
         MonitorUsage(log_fp, child_pid, _config, _result, &resource_usage, &status);
-        GenerateResult(log_fp, _config, _result, &resource_usage, &status, &start, &end);
+        if (_result->error == SUCCESS)
+        {
+            GenerateResult(log_fp, _config, _result, &resource_usage, &status, &start, &end);
+        }
     }
 }
