@@ -26,7 +26,7 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
     // load seccomp rules
-    ctx = seccomp_init(SCMP_ACT_TRAP);
+    ctx = seccomp_init(SCMP_ACT_TRACE(1));
     if (!ctx)
     {
         return LOAD_SECCOMP_FAILED;
