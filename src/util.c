@@ -8,14 +8,23 @@
 
 void GetNobody(int *uid, int *gid)
 {
-    *uid = 65534;
-    *gid = 65534;
+    struct passwd *pwd = getpwnam("nobody");
+    if (pwd != NULL)
+    {
+        *uid = pwd->pw_uid;
+        *gid = pwd->pw_gid;
+    }
+    else
+    {
+        *uid = 65534;
+        *gid = 65534;
+    }
 }
 
-void Halt(int exit_coide)
+void Halt(int exit_code)
 {
     arg_freetable(arg_table, sizeof(arg_table) / sizeof(arg_table[0]));
-    exit(exit_coide);
+    exit(exit_code);
 }
 
 void UnexceptedArg()
@@ -34,4 +43,17 @@ void PrintUsage()
 void PrintVersion()
 {
     printf("Version: %d.%d.%d\n", (VERSION >> 16) & 0xff, (VERSION >> 8) & 0xff, VERSION & 0xff);
+}
+
+char *TrimDoubleQuotes(char *str)
+{
+    if (str == NULL)
+        return NULL;
+    size_t len = strlen(str);
+    if (len >= 2 && str[0] == '"' && str[len - 1] == '"')
+    {
+        str[len - 1] = '\0';
+        memmove(str, str + 1, len - 1);
+    }
+    return str;
 }

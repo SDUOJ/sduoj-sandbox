@@ -7,8 +7,8 @@ depends_dir = $(tmp_dir)/depends
 
 CC = gcc
 LD = gcc
-CFLAGS = -g -Wall -O3 -std=c99 -pie -fPIC -static
-LDFLAGS = -static
+CFLAGS = -g -Wall -O3 -std=c99 -pie -fPIC
+LDFLAGS =
 LIBS = -lpthread -lseccomp
 
 vpath %.c  src/argtable:src/container:src/logger:src/rules:src

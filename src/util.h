@@ -3,7 +3,7 @@
 
 #include "public.h"
 
-/* get uid and pid of role `nobody` */
+/* get uid and gid of user `nobody` */
 void GetNobody(int *uid, int *gid);
 
 /* release arg table and exit */
@@ -17,4 +17,7 @@ void PrintUsage();
 
 /* print current sandbox version */
 void PrintVersion();
+
+/* remove surrounding double quotes from a string */
+char *TrimDoubleQuotes(char *str);
 #endif //SANDBOX_UTIL_H_

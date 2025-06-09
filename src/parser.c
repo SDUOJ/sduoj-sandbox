@@ -3,6 +3,7 @@
 
 #include <signal.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MAX_ERROR 10
 
@@ -13,6 +14,7 @@ struct arg_int
     *max_real_time,
     *max_process_number,
     *max_output_size,
+    *print_args,
     *uid, *gid;
 
 struct arg_str 
@@ -29,6 +31,8 @@ struct arg_str
 struct arg_end *end;
 
 void *arg_table[NUM_ALLOWED_ARG + 1];
+
+static void PrintConfig(struct config *_config);
 
 void Initialize(int argc, char **argv, struct config *_config)
 {
@@ -47,9 +51,10 @@ void Initialize(int argc, char **argv, struct config *_config)
     arg_table[12] = (exe_args = arg_strn(NULL, "exe_args", STR_PLACEHOLDER, 0, 255, "Arguments for exectuable file."));
     arg_table[13] = (exe_envs = arg_strn(NULL, "exe_envs", STR_PLACEHOLDER, 0, 255, "Environments for executable file."));
     arg_table[14] = (seccomp_rules = arg_strn(NULL, "seccomp_rules", STR_PLACEHOLDER, 0, 1, "Seccomp rules."));
-    arg_table[15] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
-    arg_table[16] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
-    arg_table[17] = (end = arg_end(MAX_ERROR));
+    arg_table[15] = (print_args = arg_intn(NULL, "print_args", INT_PLACEHOLDER, 0, 1, "Print args after config (0 or 1)."));
+    arg_table[16] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
+    arg_table[17] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
+    arg_table[18] = (end = arg_end(MAX_ERROR));
 
     int nerrors = arg_parse(argc, argv, arg_table);
 
@@ -74,6 +79,9 @@ void Initialize(int argc, char **argv, struct config *_config)
     signal(SIGINT, Halt);
 
     InitConfig(_config);
+
+    if (_config->print_args == 1)
+        PrintConfig(_config);
 
     return;
 }
@@ -108,27 +116,63 @@ void InitConfig(struct config *_config)
         _config->max_output_size = RLIM_INFINITY;
     }
 
-    _config->exe_path = (char *)exe_path->sval[0];
-    _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
-    _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
-    _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "sandbox.log";
+    _config->exe_path = TrimDoubleQuotes((char *)exe_path->sval[0]);
+    _config->input_path = input_path->count > 0 ? TrimDoubleQuotes((char *)input_path->sval[0]) : "/dev/stdin";
+    _config->output_path = output_path->count > 0 ? TrimDoubleQuotes((char *)output_path->sval[0]) : "/dev/stdout";
+    _config->log_path = log_path->count > 0 ? TrimDoubleQuotes((char *)log_path->sval[0]) : "sandbox.log";
 
     _config->exe_args[0] = _config->exe_path;
     for (i = 1; i <= exe_args->count; i++)
     {
-        _config->exe_args[i] = (char *)exe_args->sval[i - 1];
+        _config->exe_args[i] = TrimDoubleQuotes((char *)exe_args->sval[i - 1]);
     }
     _config->exe_args[i] = NULL;
 
     for (i = 0; i < exe_envs->count; i++)
     {
-        _config->exe_envs[i] = (char *)exe_envs->sval[i];
+        _config->exe_envs[i] = TrimDoubleQuotes((char *)exe_envs->sval[i]);
+    }
+    if (exe_envs->count == 0)
+    {
+        extern char **environ;
+        for (i = 0; environ[i] != NULL && i < MAX_ENV; i++)
+        {
+            _config->exe_envs[i] = environ[i];
+        }
     }
     _config->exe_envs[i] = NULL;
 
-    _config->seccomp_rules = seccomp_rules->count > 0 ? (char *)seccomp_rules->sval[0] : NULL;
+    _config->seccomp_rules = seccomp_rules->count > 0 ? TrimDoubleQuotes((char *)seccomp_rules->sval[0]) : NULL;
 
     GetNobody(&nobody_uid, &nobody_gid);
     _config->uid = uid->count > 0 ? (uid_t)*uid->ival : nobody_uid;
     _config->gid = gid->count > 0 ? (gid_t)*gid->ival : nobody_gid;
+    _config->print_args = print_args->count > 0 ? *print_args->ival : 0;
+}
+
+static void PrintConfig(struct config *_config)
+{
+    int i;
+    printf("max_cpu_time: %llu\n", (unsigned long long)_config->max_cpu_time);
+    printf("max_real_time: %llu\n", (unsigned long long)_config->max_real_time);
+    printf("max_memory: %llu\n", (unsigned long long)_config->max_memory);
+    printf("max_stack: %llu\n", (unsigned long long)_config->max_stack);
+    printf("max_process_number: %llu\n", (unsigned long long)_config->max_process_number);
+    printf("max_output_size: %llu\n", (unsigned long long)_config->max_output_size);
+    printf("exe_path: %s\n", _config->exe_path ? _config->exe_path : "(null)");
+    printf("input_path: %s\n", _config->input_path ? _config->input_path : "(null)");
+    printf("output_path: %s\n", _config->output_path ? _config->output_path : "(null)");
+    printf("log_path: %s\n", _config->log_path ? _config->log_path : "(null)");
+    for (i = 0; _config->exe_args[i] != NULL; i++)
+    {
+        printf("exe_args[%d]: %s\n", i, _config->exe_args[i]);
+    }
+    for (i = 0; _config->exe_envs[i] != NULL; i++)
+    {
+        printf("exe_envs[%d]: %s\n", i, _config->exe_envs[i]);
+    }
+    printf("seccomp_rules: %s\n", _config->seccomp_rules ? _config->seccomp_rules : "(null)");
+    printf("uid: %d\n", _config->uid);
+    printf("gid: %d\n", _config->gid);
+    printf("print_args: %d\n", _config->print_args);
 }
