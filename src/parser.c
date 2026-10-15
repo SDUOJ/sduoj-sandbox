@@ -21,6 +21,7 @@ struct arg_str
     *exe_path,
     *input_path,
     *output_path,
+    *error_path,
     *log_path,
     *exe_args,
     *exe_envs,
@@ -49,7 +50,8 @@ void Initialize(int argc, char **argv, struct config *_config)
     arg_table[14] = (seccomp_rules = arg_strn(NULL, "seccomp_rules", STR_PLACEHOLDER, 0, 1, "Seccomp rules."));
     arg_table[15] = (uid = arg_intn(NULL, "uid", INT_PLACEHOLDER, 0, 1, "UID for executable file (default `nobody`)."));
     arg_table[16] = (gid = arg_intn(NULL, "gid", INT_PLACEHOLDER, 0, 1, "GID for executable file (default `nobody`)"));
-    arg_table[17] = (end = arg_end(MAX_ERROR));
+    arg_table[17] = (error_path = arg_strn(NULL, "error_path", STR_PLACEHOLDER, 0, 1, "Separate stderr file path (optional)."));
+    arg_table[18] = (end = arg_end(MAX_ERROR));
 
     int nerrors = arg_parse(argc, argv, arg_table);
 
@@ -111,6 +113,7 @@ void InitConfig(struct config *_config)
     _config->exe_path = (char *)exe_path->sval[0];
     _config->input_path = input_path->count > 0 ? (char *)input_path->sval[0] : "/dev/stdin";
     _config->output_path = output_path->count > 0 ? (char *)output_path->sval[0] : "/dev/stdout";
+    _config->error_path = error_path->count > 0 ? (char *)error_path->sval[0] : NULL;
     _config->log_path = log_path->count > 0 ? (char *)log_path->sval[0] : "sandbox.log";
 
     _config->exe_args[0] = _config->exe_path;

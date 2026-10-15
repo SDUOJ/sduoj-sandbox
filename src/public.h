@@ -47,6 +47,7 @@ struct config {
     char *exe_path;
     char *input_path;
     char *output_path;
+    char *error_path;
     char *log_path;
 
     char *exe_args[MAX_ARG + 1];

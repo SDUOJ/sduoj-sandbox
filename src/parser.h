@@ -7,7 +7,7 @@
 #define INT_PLACEHOLDER "<n>"
 #define STR_PLACEHOLDER "<str>"
 
-#define NUM_ALLOWED_ARG 17
+#define NUM_ALLOWED_ARG 18
 
 extern struct arg_lit *help, *version;
 
@@ -23,7 +23,8 @@ extern struct arg_str
     *max_stack,               /* maximum stack size(byte), default 16384K */
     *exe_path,                /* executable file that sandbox will run */
     *input_path,              /* executable file will read in */
-    *output_path,             /* executable file will print out */
+    *output_path,
+    *error_path,             /* executable file will print out */
     *log_path,                /* sandbox will print log */
     *exe_args,                /* args and envs for executable file */
     *exe_envs,
