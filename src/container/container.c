@@ -55,8 +55,7 @@ void *KillTimeout(void *timeout_info)
     pid_t pid = ((struct timeout_info *)timeout_info)->pid;
     int timeout = ((struct timeout_info *)timeout_info)->timeout;
 
-    // pthread_detach(pthread_self()) set the thread's status to be unjoinable to release resources; if success, return 0
-    if (pthread_detach(pthread_self()) != 0 || sleep((unsigned int)((timeout + 1000) / 1000)) != 0)
+    if (sleep((unsigned int)((timeout + 1000) / 1000)) != 0)
     {
         KillProcess(pid);
         return NULL;
@@ -195,10 +194,10 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
 {
     // create new thread to monitor process running time
     pthread_t tid = 0;
+    // Keep the arguments alive until the monitor thread has finished.
+    struct timeout_info timeout_args = {child_pid, _config->max_real_time};
     if (LIMITED(_config->max_real_time))
     {
-        struct timeout_info timeout_args = {child_pid, _config->max_real_time};
-
         if (pthread_create(&tid, NULL, KillTimeout, (void *)(&timeout_args)) != 0)
         {
             KillProcess(child_pid);
@@ -216,7 +215,10 @@ void RequireUsage(FILE *log_fp, pid_t child_pid, struct config *_config, struct 
 
     // process exited, we may need to cancel KillTimeout thread
     if (LIMITED(_config->max_real_time))
+    {
         pthread_cancel(tid);
+        pthread_join(tid, NULL);
+    }
 }
 
 /* Generate the result */
