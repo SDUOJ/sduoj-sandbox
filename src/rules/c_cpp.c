@@ -17,6 +17,9 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
                                 SCMP_SYS(close), SCMP_SYS(readlink),
                                 SCMP_SYS(sysinfo), SCMP_SYS(write),
                                 SCMP_SYS(writev), SCMP_SYS(lseek),
+#if defined(__aarch64__)
+                                SCMP_SYS(readlinkat), SCMP_SYS(faccessat),
+#endif
                                 SCMP_SYS(clock_gettime)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
