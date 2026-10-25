@@ -31,6 +31,109 @@
 #include "../logger/logger.h"
 #include "../rules/seccomp_rules.h"
 
+/* Ubuntu 18.04's libseccomp headers do not name newer syscalls.  The
+ * production targets are x86_64 and aarch64, whose generic syscall numbers
+ * match for this range; provide the names so the deny list still compiles
+ * and remains effective when the binary runs on a newer kernel. */
+#if defined(__x86_64__) || defined(__aarch64__)
+#ifndef __NR_io_uring_setup
+#define __NR_io_uring_setup 425
+#endif
+#ifndef __NR_io_uring_enter
+#define __NR_io_uring_enter 426
+#endif
+#ifndef __NR_io_uring_register
+#define __NR_io_uring_register 427
+#endif
+#ifndef __NR_open_tree
+#define __NR_open_tree 428
+#endif
+#ifndef __NR_move_mount
+#define __NR_move_mount 429
+#endif
+#ifndef __NR_fsopen
+#define __NR_fsopen 430
+#endif
+#ifndef __NR_fsconfig
+#define __NR_fsconfig 431
+#endif
+#ifndef __NR_fsmount
+#define __NR_fsmount 432
+#endif
+#ifndef __NR_fspick
+#define __NR_fspick 433
+#endif
+#ifndef __NR_pidfd_open
+#define __NR_pidfd_open 434
+#endif
+#ifndef __NR_clone3
+#define __NR_clone3 435
+#endif
+#ifndef __NR_pidfd_getfd
+#define __NR_pidfd_getfd 438
+#endif
+#ifndef __NR_process_madvise
+#define __NR_process_madvise 440
+#endif
+#ifndef __NR_mount_setattr
+#define __NR_mount_setattr 442
+#endif
+#ifndef __NR_process_mrelease
+#define __NR_process_mrelease 448
+#endif
+#ifndef __NR_pidfd_send_signal
+#define __NR_pidfd_send_signal 424
+#endif
+#ifndef __SNR_io_uring_setup
+#define __SNR_io_uring_setup __NR_io_uring_setup
+#endif
+#ifndef __SNR_io_uring_enter
+#define __SNR_io_uring_enter __NR_io_uring_enter
+#endif
+#ifndef __SNR_io_uring_register
+#define __SNR_io_uring_register __NR_io_uring_register
+#endif
+#ifndef __SNR_open_tree
+#define __SNR_open_tree __NR_open_tree
+#endif
+#ifndef __SNR_move_mount
+#define __SNR_move_mount __NR_move_mount
+#endif
+#ifndef __SNR_fsopen
+#define __SNR_fsopen __NR_fsopen
+#endif
+#ifndef __SNR_fsconfig
+#define __SNR_fsconfig __NR_fsconfig
+#endif
+#ifndef __SNR_fsmount
+#define __SNR_fsmount __NR_fsmount
+#endif
+#ifndef __SNR_fspick
+#define __SNR_fspick __NR_fspick
+#endif
+#ifndef __SNR_pidfd_open
+#define __SNR_pidfd_open __NR_pidfd_open
+#endif
+#ifndef __SNR_clone3
+#define __SNR_clone3 __NR_clone3
+#endif
+#ifndef __SNR_pidfd_getfd
+#define __SNR_pidfd_getfd __NR_pidfd_getfd
+#endif
+#ifndef __SNR_process_madvise
+#define __SNR_process_madvise __NR_process_madvise
+#endif
+#ifndef __SNR_mount_setattr
+#define __SNR_mount_setattr __NR_mount_setattr
+#endif
+#ifndef __SNR_process_mrelease
+#define __SNR_process_mrelease __NR_process_mrelease
+#endif
+#ifndef __SNR_pidfd_send_signal
+#define __SNR_pidfd_send_signal __NR_pidfd_send_signal
+#endif
+#endif
+
 /* Ubuntu 18.04's headers predate Landlock.  The syscall ABI is stable and
  * these definitions keep the sandbox buildable on the old judging image. */
 #ifndef __NR_landlock_create_ruleset
