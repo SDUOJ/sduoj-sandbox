@@ -249,8 +249,14 @@ static int CreateRunCgroup(struct config *_config, struct cgroup_run *run)
                  (long)getpid(), (unsigned long long)MonotonicMilliseconds()) >= (int)sizeof(run->path)) return -1;
     if (mkdir(run->path, 0700) != 0) return -1;
     char memory[64], pids[64];
-    snprintf(memory, sizeof(memory), "%llu", (unsigned long long)_config->max_memory);
-    snprintf(pids, sizeof(pids), "%llu", (unsigned long long)_config->max_process_number);
+    if (LIMITED(_config->max_memory))
+        snprintf(memory, sizeof(memory), "%llu", (unsigned long long)_config->max_memory);
+    else
+        snprintf(memory, sizeof(memory), "max");
+    if (LIMITED(_config->max_process_number))
+        snprintf(pids, sizeof(pids), "%llu", (unsigned long long)_config->max_process_number);
+    else
+        snprintf(pids, sizeof(pids), "max");
     if (WriteCgroupValue(run->path, "memory.max", memory) != 0 ||
         WriteCgroupValue(run->path, "pids.max", pids) != 0 ||
         WriteCgroupValue(run->path, "memory.swap.max", "0") != 0 ||
