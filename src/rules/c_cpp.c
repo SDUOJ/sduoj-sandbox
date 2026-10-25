@@ -28,7 +28,10 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
                                 SCMP_SYS(ioctl), SCMP_SYS(getcwd), SCMP_SYS(getuid),
                                 SCMP_SYS(geteuid), SCMP_SYS(getgid), SCMP_SYS(getegid),
                                 SCMP_SYS(statx), SCMP_SYS(faccessat),
-                                SCMP_SYS(faccessat2), SCMP_SYS(readlinkat), SCMP_SYS(getrusage)};
+#ifdef __SNR_faccessat2
+                                SCMP_SYS(faccessat2),
+#endif
+                                SCMP_SYS(readlinkat), SCMP_SYS(getrusage)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
