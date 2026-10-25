@@ -1,8 +1,10 @@
+#define _GNU_SOURCE
 #define _POSIX_SOURCE
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/file.h>
 
@@ -10,7 +12,10 @@
 
 FILE *LogOpen(const char *filename)
 {
-    FILE *log_fp = fopen(filename, "a");
+    int fd = open(filename, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC | O_NOFOLLOW, 0600);
+    FILE *log_fp = fd < 0 ? NULL : fdopen(fd, "a");
+    if (fd >= 0 && log_fp == NULL)
+        close(fd);
     if (log_fp == NULL)
         fprintf(stderr, "can not open log file %s", filename);
     return log_fp;
@@ -47,6 +52,8 @@ void LogWrite(int level, const char *source_filename, const int line, const FILE
     int count = snprintf(buffer, LOG_BUFFER_SIZE,
                          "[%s] [%s:%s] %s: %s\n",
                          datetime, source_filename, line_str, LOG_LEVEL_NOTE[level], log_buffer);
+    if (count < 0) return;
+    if (count >= LOG_BUFFER_SIZE) count = LOG_BUFFER_SIZE - 1;
     int log_fd = fileno((FILE *)log_fp);
 
     if (flock(log_fd, LOCK_EX) == 0)

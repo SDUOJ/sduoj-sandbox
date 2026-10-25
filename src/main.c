@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "parser.h"
 #include "public.h"
@@ -14,9 +15,12 @@ int main(int argc, char **argv)
 
     Run(&_config, &_result);
 
-    printf("{\"cpu_time\":%u,\"real_time\":%u,\"memory\":%lu,\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",
+    printf("{\"cpu_time\":%u,\"user_cpu_time\":%u,\"system_cpu_time\":%u,\"real_time\":%u,\"wall_time\":%u,\"memory\":%" PRIu64 ",\"signal\":%d,\"exit_code\":%d,\"error\":%d,\"result\":%d}\n",
            _result.cpu_time,
+           _result.user_cpu_time,
+           _result.system_cpu_time,
            _result.real_time,
+           _result.wall_time,
            _result.memory,
            _result.signal,
            _result.exit_code,

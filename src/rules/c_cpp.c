@@ -17,15 +17,23 @@ int _c_cpp_seccomp_rules(struct config *_config, int allow_write_file)
                                 SCMP_SYS(close), SCMP_SYS(readlink),
                                 SCMP_SYS(sysinfo), SCMP_SYS(write),
                                 SCMP_SYS(writev), SCMP_SYS(lseek),
-#if defined(__aarch64__)
-                                SCMP_SYS(readlinkat), SCMP_SYS(faccessat),
-#endif
-                                SCMP_SYS(clock_gettime)};
+                                SCMP_SYS(clock_gettime), SCMP_SYS(newfstatat),
+                                SCMP_SYS(futex), SCMP_SYS(set_tid_address),
+                                SCMP_SYS(set_robust_list), SCMP_SYS(rseq),
+                                SCMP_SYS(prlimit64), SCMP_SYS(getrandom),
+                                SCMP_SYS(rt_sigaction), SCMP_SYS(rt_sigprocmask),
+                                SCMP_SYS(rt_sigreturn), SCMP_SYS(getpid),
+                                SCMP_SYS(gettid), SCMP_SYS(exit), SCMP_SYS(madvise),
+                                SCMP_SYS(mremap), SCMP_SYS(pread64), SCMP_SYS(fcntl),
+                                SCMP_SYS(ioctl), SCMP_SYS(getcwd), SCMP_SYS(getuid),
+                                SCMP_SYS(geteuid), SCMP_SYS(getgid), SCMP_SYS(getegid),
+                                SCMP_SYS(statx), SCMP_SYS(faccessat),
+                                SCMP_SYS(faccessat2), SCMP_SYS(readlinkat), SCMP_SYS(getrusage)};
 
     int syscalls_whitelist_length = sizeof(syscalls_whitelist) / sizeof(int);
     scmp_filter_ctx ctx = NULL;
     // load seccomp rules
-    ctx = seccomp_init(SCMP_ACT_KILL);
+    ctx = seccomp_init(SCMP_ACT_KILL_PROCESS);
     if (!ctx)
     {
         return LOAD_SECCOMP_FAILED;

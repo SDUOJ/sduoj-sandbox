@@ -14,7 +14,7 @@ LIBS = -lpthread -lseccomp
 vpath %.c  src/argtable:src/container:src/logger:src/rules:src
 vpath %.h  src/argtable:src/container:src/logger:src/rules:src
 
-CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c container.c logger.c
+CFILES = main.c util.c parser.c argtable3.c c_cpp.c general.c container.c filesystem.c logger.c
 ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 
 program = $(bin_dir)/sandbox
