@@ -177,10 +177,36 @@ for call, values, error in [(clone,[17,0,0,0,0],errno.EPERM),
     (vmread,[os.getppid(),0,0,0,0,0],errno.EPERM)]:
     assert libc.syscall(call,*values) == -1
     assert ctypes.get_errno() == error, (call,ctypes.get_errno())
+for call in (424,426,427,428,429,430,431,432,433,434,438,440,442,448):
+    assert libc.syscall(call,0,0,0,0,0,0)==-1
+    assert ctypes.get_errno()==errno.EPERM,(call,ctypes.get_errno())
 threads=[threading.Thread(target=lambda: sum(range(10000))) for _ in range(4)]
 for t in threads: t.start()
 for t in threads: t.join()
 print('threads-yes-processes-no')
+""")
+    run("socketpair_safety", r"""import ctypes,errno,os,socket,array
+libc=ctypes.CDLL(None,use_errno=True)
+for domain,kind,protocol in [(socket.AF_INET,socket.SOCK_STREAM,0),(socket.AF_UNIX,socket.SOCK_DGRAM,0),(socket.AF_UNIX,socket.SOCK_STREAM,1),(socket.AF_UNIX,socket.SOCK_STREAM|socket.SOCK_CLOEXEC,0)]:
+ fds=(ctypes.c_int*2)();ctypes.set_errno(0)
+ assert libc.socketpair(domain,kind,protocol,fds)==-1
+ assert ctypes.get_errno()==errno.EACCES,(domain,kind,protocol,ctypes.get_errno())
+for domain in (socket.AF_UNIX,socket.AF_INET,socket.AF_INET6):
+ ctypes.set_errno(0);assert libc.socket(domain,socket.SOCK_STREAM,0)==-1
+ assert ctypes.get_errno()==errno.EACCES
+for method in ('connect','bind'):
+ ctypes.set_errno(0);assert getattr(libc,method)(-1,ctypes.c_char_p(b'\x01\x00/tmp/sduoj-must-not-connect'),32)==-1
+ assert ctypes.get_errno()==errno.EACCES,(method,ctypes.get_errno())
+fds=(ctypes.c_int*2)();assert libc.socketpair(socket.AF_UNIX,socket.SOCK_STREAM,0,fds)==0
+os.write(fds[0],b'local');assert os.read(fds[1],5)==b'local'
+a=socket.socket(fileno=fds[0]);b=socket.socket(fileno=fds[1])
+try:a.sendmsg([b'x'],[(socket.SOL_SOCKET,socket.SCM_RIGHTS,array.array('i',[1]))])
+except OSError as error:assert error.errno==errno.EACCES,error
+else:raise AssertionError('descriptor passing escaped')
+try:b.recvmsg(1,128)
+except OSError as error:assert error.errno==errno.EACCES,error
+else:raise AssertionError('recvmsg escaped')
+a.close();b.close();print('exact anonymous pair works; external sockets, named paths, fd transfer denied')
 """)
     calibration = base / 'calibration.c'
     calibration.write_text(r"""#define _POSIX_C_SOURCE 200809L

@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "container.h"
@@ -33,7 +34,10 @@
 
 /* Ubuntu 18.04's libseccomp headers do not name newer syscalls.  The
  * production targets are x86_64 and aarch64, whose generic syscall numbers
- * match for this range; provide the names so the deny list still compiles
+ * match for this range. Old libseccomp headers may define negative pseudo
+ * numbers even when the linked library knows the real syscall. Replace those
+ * sentinels as well: otherwise rule_add succeeds for an unreachable number.
+ * Provide native numbers so the deny list still compiles
  * and remains effective when the binary runs on a newer kernel. */
 #if defined(__x86_64__) || defined(__aarch64__)
 #ifndef __NR_io_uring_setup
@@ -84,52 +88,68 @@
 #ifndef __NR_pidfd_send_signal
 #define __NR_pidfd_send_signal 424
 #endif
-#ifndef __SNR_io_uring_setup
+#if !defined(__SNR_io_uring_setup) || __SNR_io_uring_setup < 0
+#undef __SNR_io_uring_setup
 #define __SNR_io_uring_setup __NR_io_uring_setup
 #endif
-#ifndef __SNR_io_uring_enter
+#if !defined(__SNR_io_uring_enter) || __SNR_io_uring_enter < 0
+#undef __SNR_io_uring_enter
 #define __SNR_io_uring_enter __NR_io_uring_enter
 #endif
-#ifndef __SNR_io_uring_register
+#if !defined(__SNR_io_uring_register) || __SNR_io_uring_register < 0
+#undef __SNR_io_uring_register
 #define __SNR_io_uring_register __NR_io_uring_register
 #endif
-#ifndef __SNR_open_tree
+#if !defined(__SNR_open_tree) || __SNR_open_tree < 0
+#undef __SNR_open_tree
 #define __SNR_open_tree __NR_open_tree
 #endif
-#ifndef __SNR_move_mount
+#if !defined(__SNR_move_mount) || __SNR_move_mount < 0
+#undef __SNR_move_mount
 #define __SNR_move_mount __NR_move_mount
 #endif
-#ifndef __SNR_fsopen
+#if !defined(__SNR_fsopen) || __SNR_fsopen < 0
+#undef __SNR_fsopen
 #define __SNR_fsopen __NR_fsopen
 #endif
-#ifndef __SNR_fsconfig
+#if !defined(__SNR_fsconfig) || __SNR_fsconfig < 0
+#undef __SNR_fsconfig
 #define __SNR_fsconfig __NR_fsconfig
 #endif
-#ifndef __SNR_fsmount
+#if !defined(__SNR_fsmount) || __SNR_fsmount < 0
+#undef __SNR_fsmount
 #define __SNR_fsmount __NR_fsmount
 #endif
-#ifndef __SNR_fspick
+#if !defined(__SNR_fspick) || __SNR_fspick < 0
+#undef __SNR_fspick
 #define __SNR_fspick __NR_fspick
 #endif
-#ifndef __SNR_pidfd_open
+#if !defined(__SNR_pidfd_open) || __SNR_pidfd_open < 0
+#undef __SNR_pidfd_open
 #define __SNR_pidfd_open __NR_pidfd_open
 #endif
-#ifndef __SNR_clone3
+#if !defined(__SNR_clone3) || __SNR_clone3 < 0
+#undef __SNR_clone3
 #define __SNR_clone3 __NR_clone3
 #endif
-#ifndef __SNR_pidfd_getfd
+#if !defined(__SNR_pidfd_getfd) || __SNR_pidfd_getfd < 0
+#undef __SNR_pidfd_getfd
 #define __SNR_pidfd_getfd __NR_pidfd_getfd
 #endif
-#ifndef __SNR_process_madvise
+#if !defined(__SNR_process_madvise) || __SNR_process_madvise < 0
+#undef __SNR_process_madvise
 #define __SNR_process_madvise __NR_process_madvise
 #endif
-#ifndef __SNR_mount_setattr
+#if !defined(__SNR_mount_setattr) || __SNR_mount_setattr < 0
+#undef __SNR_mount_setattr
 #define __SNR_mount_setattr __NR_mount_setattr
 #endif
-#ifndef __SNR_process_mrelease
+#if !defined(__SNR_process_mrelease) || __SNR_process_mrelease < 0
+#undef __SNR_process_mrelease
 #define __SNR_process_mrelease __NR_process_mrelease
 #endif
-#ifndef __SNR_pidfd_send_signal
+#if !defined(__SNR_pidfd_send_signal) || __SNR_pidfd_send_signal < 0
+#undef __SNR_pidfd_send_signal
 #define __SNR_pidfd_send_signal __NR_pidfd_send_signal
 #endif
 #endif
@@ -562,7 +582,7 @@ static int InstallNetworkDeny(int allow_processes)
     if (seccomp_attr_set(ctx, SCMP_FLTATR_ACT_BADARCH, SCMP_ACT_KILL_PROCESS) != 0)
         goto fail;
     const int calls[] = {
-        SCMP_SYS(socket), SCMP_SYS(socketpair), SCMP_SYS(connect), SCMP_SYS(bind),
+        SCMP_SYS(socket), SCMP_SYS(connect), SCMP_SYS(bind),
         SCMP_SYS(listen), SCMP_SYS(accept), SCMP_SYS(accept4), SCMP_SYS(sendto),
         SCMP_SYS(sendmsg), SCMP_SYS(sendmmsg), SCMP_SYS(recvfrom), SCMP_SYS(recvmsg),
         SCMP_SYS(recvmmsg)
@@ -573,6 +593,16 @@ static int InstallNetworkDeny(int allow_processes)
             return -1;
         }
     }
+    /* JDK17 FileDispatcherImpl initializes an anonymous stream pair. It has
+     * no name or external endpoint. Keep named sockets and descriptor passing
+     * denied; only this exact socketpair tuple can reach the kernel. */
+    if (seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
+                         SCMP_A0(SCMP_CMP_NE, AF_UNIX)) != 0 ||
+        seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
+                         SCMP_A1(SCMP_CMP_NE, SOCK_STREAM)) != 0 ||
+        seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
+                         SCMP_A2(SCMP_CMP_NE, 0)) != 0)
+        goto fail;
     /* Allow JVM/Python threads, never a second process.  glibc falls back
      * from clone3 to clone when clone3 reports ENOSYS. */
     const unsigned long thread_required = CLONE_VM | CLONE_SIGHAND | CLONE_THREAD;
