@@ -25,6 +25,8 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <sys/socket.h>
+#include <linux/filter.h>
+#include <stddef.h>
 #include <unistd.h>
 
 #include "container.h"
@@ -574,6 +576,27 @@ fail:
     return -1;
 }
 
+static int InstallSocketpairTypes(int allow_processes)
+{
+    /* libseccomp rejects two comparisons against the same argument. Express
+     * this two-value compiler allowlist directly; the common filter separately
+     * checks architecture, domain, protocol and denies external operations. */
+    struct sock_filter filter[] = {
+        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
+        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_socketpair, 0, 6),
+        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, args[1]) + 4),
+        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, 0, 0, 3),
+        BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, args[1])),
+        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SOCK_STREAM, 2, 0),
+        BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K,
+                 allow_processes ? SOCK_SEQPACKET | SOCK_CLOEXEC : SOCK_STREAM, 1, 0),
+        BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | EACCES),
+        BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW)
+    };
+    struct sock_fprog program = {.len = sizeof(filter) / sizeof(filter[0]), .filter = filter};
+    return prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &program);
+}
+
 static int InstallNetworkDeny(int allow_processes)
 {
     scmp_filter_ctx ctx = seccomp_init(SCMP_ACT_ALLOW);
@@ -584,7 +607,7 @@ static int InstallNetworkDeny(int allow_processes)
     const int calls[] = {
         SCMP_SYS(socket), SCMP_SYS(connect), SCMP_SYS(bind),
         SCMP_SYS(listen), SCMP_SYS(accept), SCMP_SYS(accept4), SCMP_SYS(sendto),
-        SCMP_SYS(sendmsg), SCMP_SYS(sendmmsg), SCMP_SYS(recvfrom), SCMP_SYS(recvmsg),
+        SCMP_SYS(sendmsg), SCMP_SYS(sendmmsg), SCMP_SYS(recvmsg),
         SCMP_SYS(recvmmsg)
     };
     for (size_t i = 0; i < sizeof(calls) / sizeof(calls[0]); i++) {
@@ -593,13 +616,24 @@ static int InstallNetworkDeny(int allow_processes)
             return -1;
         }
     }
+    /* Rust's compiler spawn handshake reads an anonymous cloexec socket.
+     * No sender address, flags or ancillary descriptors are accepted. */
+    if ((!allow_processes && seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES),
+                                              SCMP_SYS(recvfrom), 0) != 0) ||
+        (allow_processes &&
+         (seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(recvfrom), 1,
+                           SCMP_A3(SCMP_CMP_NE, 0)) != 0 ||
+          seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(recvfrom), 1,
+                           SCMP_A4(SCMP_CMP_NE, 0)) != 0 ||
+          seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(recvfrom), 1,
+                           SCMP_A5(SCMP_CMP_NE, 0)) != 0)))
+        goto fail;
     /* JDK17 FileDispatcherImpl initializes an anonymous stream pair. It has
      * no name or external endpoint. Keep named sockets and descriptor passing
-     * denied; only this exact socketpair tuple can reach the kernel. */
+     * denied. Rust's compiler launcher also needs an anonymous cloexec
+     * seqpacket pair, restricted to writable compiler workspaces. */
     if (seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
                          SCMP_A0(SCMP_CMP_NE, AF_UNIX)) != 0 ||
-        seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
-                         SCMP_A1(SCMP_CMP_NE, SOCK_STREAM)) != 0 ||
         seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EACCES), SCMP_SYS(socketpair), 1,
                          SCMP_A2(SCMP_CMP_NE, 0)) != 0)
         goto fail;
@@ -797,7 +831,8 @@ static void ChildProcess(FILE *log_fp, struct config *_config, pid_t parent_pid,
         ChildError(log_fp, _config, SETUID_FAILED);
     if (prctl(PR_SET_PDEATHSIG, SIGKILL) != 0 || getppid() != parent_pid)
         ChildError(log_fp, _config, PARENT_DEATH_SIGNAL_FAILED);
-    if (InstallNetworkDeny(!_config->work_readonly) != 0)
+    if (InstallNetworkDeny(!_config->work_readonly) != 0 ||
+        InstallSocketpairTypes(!_config->work_readonly) != 0)
         ChildError(log_fp, _config, LOAD_SECCOMP_FAILED);
 
     if (_config->seccomp_rules != NULL) {

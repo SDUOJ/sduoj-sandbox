@@ -187,13 +187,15 @@ print('threads-yes-processes-no')
 """)
     run("socketpair_safety", r"""import ctypes,errno,os,socket,array
 libc=ctypes.CDLL(None,use_errno=True)
-for domain,kind,protocol in [(socket.AF_INET,socket.SOCK_STREAM,0),(socket.AF_UNIX,socket.SOCK_DGRAM,0),(socket.AF_UNIX,socket.SOCK_STREAM,1),(socket.AF_UNIX,socket.SOCK_STREAM|socket.SOCK_CLOEXEC,0)]:
+for domain,kind,protocol in [(socket.AF_INET,socket.SOCK_STREAM,0),(socket.AF_UNIX,socket.SOCK_DGRAM,0),(socket.AF_UNIX,socket.SOCK_SEQPACKET|socket.SOCK_CLOEXEC,0),(socket.AF_UNIX,socket.SOCK_STREAM,1),(socket.AF_UNIX,socket.SOCK_STREAM|socket.SOCK_CLOEXEC,0)]:
  fds=(ctypes.c_int*2)();ctypes.set_errno(0)
  assert libc.socketpair(domain,kind,protocol,fds)==-1
  assert ctypes.get_errno()==errno.EACCES,(domain,kind,protocol,ctypes.get_errno())
 for domain in (socket.AF_UNIX,socket.AF_INET,socket.AF_INET6):
  ctypes.set_errno(0);assert libc.socket(domain,socket.SOCK_STREAM,0)==-1
  assert ctypes.get_errno()==errno.EACCES
+ctypes.set_errno(0);assert libc.recvfrom(-1,0,0,0,0,0)==-1
+assert ctypes.get_errno()==errno.EACCES
 for method in ('connect','bind'):
  ctypes.set_errno(0);assert getattr(libc,method)(-1,ctypes.c_char_p(b'\x01\x00/tmp/sduoj-must-not-connect'),32)==-1
  assert ctypes.get_errno()==errno.EACCES,(method,ctypes.get_errno())
@@ -208,6 +210,30 @@ except OSError as error:assert error.errno==errno.EACCES,error
 else:raise AssertionError('recvmsg escaped')
 a.close();b.close();print('exact anonymous pair works; external sockets, named paths, fd transfer denied')
 """)
+    run("compiler_socket_handshake", r"""import ctypes,errno,os,socket
+libc=ctypes.CDLL(None,use_errno=True)
+fds=(ctypes.c_int*2)();assert libc.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET|socket.SOCK_CLOEXEC,0,fds)==0
+for flags,addr,addrlen in [(1,0,0),(0,1,0),(0,0,1)]:
+    ctypes.set_errno(0);assert libc.recvfrom(fds[0],0,0,flags,addr,addrlen)==-1
+    assert ctypes.get_errno()==errno.EACCES
+os.write(fds[1],b'handshake');buf=ctypes.create_string_buffer(32)
+assert libc.recvfrom(fds[0],buf,32,0,0,0)==9
+assert buf.value==b'handshake'
+for call in ('sendmsg','recvmsg'):
+    ctypes.set_errno(0);assert getattr(libc,call)(fds[0],0,0)==-1
+    assert ctypes.get_errno()==errno.EACCES
+os.close(fds[0]);os.close(fds[1]);print('compiler-handshake-only')
+""", readonly=False, rule=None)
+    rustc = Path('/opt/rust/1.78.0/bin/rustc')
+    if rustc.is_file():
+        run("rust_compile", executable=str(rustc),
+            argv=['-C', 'opt-level=2', '--cfg', 'ONLINE_JUDGE', '-o', 'main', 'main.rs'],
+            files={'main.rs': 'fn main(){println!("rust-compiled");}\n'},
+            readonly=False, rule=None, cpu=3000, wall=5000, memory=268435456,
+            output_limit=16 * 1024 * 1024,
+            environment=['PATH=/usr/bin:/bin'])
+        result = run("rust_runtime", executable=str(base / 'rust_compile/main'), rule='general')
+        assert result['stdout'] == 'rust-compiled\n'
     calibration = base / 'calibration.c'
     calibration.write_text(r"""#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
