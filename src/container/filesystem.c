@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <unistd.h>
 
 #include "filesystem.h"
@@ -52,8 +53,35 @@ static int BindPath(const char *root, const char *source, const char *destinatio
         }
     }
     if (mount(source, target, NULL, MS_BIND, NULL) != 0) return -1;
-    return mount(NULL, target, NULL,
-                 MS_BIND | MS_REMOUNT | MS_NOSUID | (readonly ? MS_RDONLY : 0), NULL);
+
+    /* A bind inherits per-mount restrictions from its source.  When a less
+     * privileged mount namespace inherits locked flags, omitting one here
+     * attempts to relax it and the kernel correctly rejects the remount.
+     * Read the actual new bind, preserve its flags, and only add restrictions.
+     */
+    struct statvfs inherited, applied;
+    if (statvfs(target, &inherited) != 0) return -1;
+    unsigned long flags = MS_BIND | MS_REMOUNT | MS_NOSUID;
+    if (readonly || (inherited.f_flag & ST_RDONLY)) flags |= MS_RDONLY;
+    if (inherited.f_flag & ST_NODEV) flags |= MS_NODEV;
+    if (inherited.f_flag & ST_NOEXEC) flags |= MS_NOEXEC;
+    if (inherited.f_flag & ST_NOATIME) flags |= MS_NOATIME;
+    if (inherited.f_flag & ST_NODIRATIME) flags |= MS_NODIRATIME;
+    if (inherited.f_flag & ST_RELATIME) flags |= MS_RELATIME;
+    if (!(inherited.f_flag & (ST_NOATIME | ST_RELATIME))) flags |= MS_STRICTATIME;
+    if (mount(NULL, target, NULL, flags, NULL) != 0) return -1;
+
+    /* Fail closed if the kernel did not retain the requested VFS policy. */
+    if (statvfs(target, &applied) != 0) return -1;
+    const unsigned long checked = ST_RDONLY | ST_NOSUID | ST_NODEV | ST_NOEXEC |
+                                  ST_NOATIME | ST_NODIRATIME | ST_RELATIME;
+    unsigned long expected = (inherited.f_flag & checked) | ST_NOSUID;
+    if (readonly) expected |= ST_RDONLY;
+    if ((applied.f_flag & checked) != expected) {
+        errno = EPERM;
+        return -1;
+    }
+    return 0;
 }
 
 static int BindArgument(const char *root, const char *cwd, const char *arg)
