@@ -51,6 +51,7 @@ include $(dfiles)
 install:
 	mkdir -p ${dest_dir}/bin
 	cp $(shell pwd)/$(program) ${dest_dir}/bin
+	install -m 0755 docker/judge-entrypoint.sh ${dest_dir}/bin/judge-entrypoint
 	ln -sf ${dest_dir}/bin/sandbox /usr/bin/sandbox
 uninstall:
 	rm -rf ${dest_dir}
